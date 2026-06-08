@@ -294,15 +294,15 @@ function InteractivePolaroid({
 
 /* ── Sticker positions ── */
 const stickerLayout: {
-  src: string; w: number; rot: number; top: string; left?: string; right?: string; delay: number; pop: "left" | "right" | "scale"; outlined?: boolean;
+  src: string; w: number; rot: number; top: string; left?: string; right?: string; delay: number; pop: "left" | "right" | "scale"; outlined?: boolean; hideOnMobile?: boolean;
 }[] = [
   { src: "sticker-3", w: 461, rot: 0, top: "calc(5% + 40px)", left: "calc(18% - 90px)", delay: 0.15, pop: "left" },
-  { src: "sticker-4", w: 346, rot: 0, top: "5%", right: "calc(2% + 200px)", delay: 0.12, pop: "right" },
-  { src: "sticker-cannoli", w: 294, rot: 0, top: "calc(25% - 120px)", left: "32%", delay: 0.3, pop: "scale" },
+  { src: "sticker-4", w: 346, rot: 0, top: "5%", right: "calc(2% + 200px)", delay: 0.12, pop: "right", hideOnMobile: true },
+  { src: "sticker-cannoli", w: 294, rot: 0, top: "calc(25% - 120px)", left: "32%", delay: 0.3, pop: "scale", hideOnMobile: true },
   { src: "sticker-iced-coffee", w: 286, rot: 0, top: "calc(4% + 600px)", right: "calc(0% + 200px)", delay: 0.22, pop: "right", outlined: true },
   { src: "sticker-12", w: 299, rot: -18, top: "calc(9% + 50px)", left: "16%", delay: 0.2, pop: "left" },
   { src: "sticker-6", w: 340, rot: 0, top: "11%", right: "0%", delay: 0.25, pop: "right" },
-  { src: "sticker-10", w: 346, rot: 0, top: "56%", left: "calc(28% + 130px)", delay: 0.35, pop: "scale" },
+  { src: "sticker-10", w: 346, rot: 0, top: "56%", left: "calc(28% + 130px)", delay: 0.35, pop: "scale", hideOnMobile: true },
   { src: "sticker-16", w: 346, rot: 0, top: "35%", left: "-2%", delay: 0.32, pop: "left" },
   { src: "sticker-13", w: 380, rot: 0, top: "35%", right: "-2%", delay: 0.3, pop: "right" },
   { src: "sticker-7", w: 276, rot: -18, top: "80%", left: "0%", delay: 0.55, pop: "left" },
@@ -348,7 +348,8 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           constraintRef={constraintRef}
           getNextZ={getNextZ}
           popFrom={s.pop}
-          style={{ top: s.top, left: s.left, right: s.right, width: `clamp(${s.w * 0.55}px, ${s.w / 13}vw, ${s.w}px)` }}
+          className={s.hideOnMobile ? "hidden sm:block" : ""}
+          style={{ top: s.top, left: s.left, right: s.right, width: `clamp(${Math.round(s.w * 0.35)}px, ${s.w / 13}vw, ${s.w}px)` }}
         >
           <Image src={`/images/${s.src}.png`} alt="" width={s.w} height={s.w} className={`w-full h-auto ${s.outlined ? "sticker-outlined" : "sticker-shadow"}`} draggable={false} />
         </Draggable>
