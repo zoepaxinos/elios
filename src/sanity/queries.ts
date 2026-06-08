@@ -10,7 +10,11 @@ export const cafeInfoQuery = groq`*[_type == "cafeInfo"][0]{
   hours,
   instagram,
   heroImage,
-  logo
+  logo,
+  menuHeading,
+  cateringHeading,
+  cateringText,
+  contactHeading
 }`;
 
 export const menuQuery = groq`*[_type == "menuCategory"] | order(order asc) {
@@ -27,6 +31,25 @@ export const menuQuery = groq`*[_type == "menuCategory"] | order(order asc) {
   }
 }`;
 
+export const menuPagesQuery = groq`*[_type == "menuPage"] | order(order asc) {
+  _id,
+  title,
+  image
+}`;
+
 export const announcementQuery = groq`*[_type == "announcement" && active == true][0]{
   text
+}`;
+
+export const navigationQuery = groq`*[_type == "navigation"][0]{
+  items[]{
+    label,
+    href
+  }
+}`;
+
+export const aboutSectionQuery = groq`*[_type == "aboutSection"][0]{
+  heading,
+  body,
+  image
 }`;
