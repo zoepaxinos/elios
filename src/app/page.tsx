@@ -29,8 +29,8 @@ export default async function Home() {
   return (
     <Hero
       cafeInfo={cafeInfo}
-      menu={menu ?? []}
-      menuPages={menuPages ?? []}
+      menu={Array.isArray(menu) ? menu : []}
+      menuPages={Array.isArray(menuPages) ? menuPages : []}
       announcement={announcement}
       navigation={navigation}
       aboutSection={aboutSection}
