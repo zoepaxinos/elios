@@ -58,6 +58,31 @@ export const cafeInfo = defineType({
       type: "url",
     }),
     defineField({
+      name: "menuHeading",
+      title: "Menu Section Heading",
+      type: "string",
+      initialValue: "Our Menu",
+    }),
+    defineField({
+      name: "cateringHeading",
+      title: "Catering Section Heading",
+      type: "string",
+      initialValue: "Catering",
+    }),
+    defineField({
+      name: "cateringText",
+      title: "Catering Text",
+      type: "array",
+      of: [{ type: "block" }],
+      description: "Rich text content for the catering section",
+    }),
+    defineField({
+      name: "contactHeading",
+      title: "Contact Section Heading",
+      type: "string",
+      initialValue: "Contact",
+    }),
+    defineField({
       name: "heroImage",
       title: "Hero Image",
       type: "image",
