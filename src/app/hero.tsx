@@ -298,7 +298,7 @@ const stickerLayout: {
 }[] = [
   { src: "sticker-3", w: 461, rot: 0, top: "calc(5% + 40px)", left: "calc(18% - 90px)", delay: 0.15, pop: "left" },
   { src: "sticker-4", w: 346, rot: 0, top: "5%", right: "calc(2% + 200px)", delay: 0.12, pop: "right", hideOnMobile: true },
-  { src: "sticker-cannoli", w: 294, rot: 0, top: "calc(25% - 120px)", left: "32%", delay: 0.3, pop: "scale", hideOnMobile: true },
+  { src: "sticker-cannoli", w: 294, rot: 0, top: "calc(25% - 180px)", left: "32%", delay: 0.3, pop: "scale", hideOnMobile: true },
   { src: "sticker-iced-coffee", w: 286, rot: 0, top: "calc(4% + 600px)", right: "calc(0% + 200px)", delay: 0.22, pop: "right", outlined: true },
   { src: "sticker-12", w: 299, rot: -18, top: "calc(9% + 50px)", left: "16%", delay: 0.2, pop: "left" },
   { src: "sticker-6", w: 340, rot: 0, top: "11%", right: "0%", delay: 0.25, pop: "right" },
@@ -519,8 +519,8 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         whileInView={{ opacity: 1, rotate: -6 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute right-[5%] top-[8%] pointer-events-none"
-        style={{ width: "clamp(144px, 16vw, 240px)" }}
+        className="absolute right-[5%] pointer-events-none"
+        style={{ top: "calc(8% - 60px)", width: "clamp(144px, 16vw, 240px)" }}
       >
         <Image src="/images/Elios_Polaroids_1.png" alt="Elio's" width={408} height={491} className="w-full h-auto drop-shadow-xl" />
       </motion.div>
