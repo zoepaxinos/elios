@@ -383,20 +383,44 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         <Image src="/images/sticker-card.png" alt="" width={140} height={200} className="w-full h-auto sticker-shadow" />
       </motion.div>
 
-      <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-20">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-12">
         {/* About graphic — polaroids, arrows, handwritten text */}
         <motion.div
           initial={{ opacity: 0, x: -40 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="flex-shrink-0 w-full md:w-[65%]"
+          className="flex-shrink-0 w-full md:w-[50%]"
         >
-          {aboutSection?.image ? (
-            <Image src={urlFor(aboutSection.image).width(900).height(800).url()} alt={aboutSection?.heading || "About"} width={900} height={800} className="w-full h-auto" />
-          ) : (
-            <Image src="/images/aboutus-graphic.png" alt="Meet Elio and I'm Pete" width={900} height={800} className="w-full h-auto" />
-          )}
+          <div className="relative">
+            {aboutSection?.image ? (
+              <Image src={urlFor(aboutSection.image).width(900).height(800).url()} alt={aboutSection?.heading || "About"} width={900} height={800} className="w-full h-auto" />
+            ) : (
+              <Image src="/images/aboutus-graphic.png" alt="Meet Elio and I'm Pete" width={900} height={800} className="w-full h-auto" />
+            )}
+            {/* Video polaroid overlay */}
+            <motion.div
+              initial={{ opacity: 0, rotate: 12 }}
+              whileInView={{ opacity: 1, rotate: 5 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="absolute top-[25%] left-[30%] w-[42%] sm:w-[38%] drop-shadow-2xl"
+            >
+              <div className="bg-[#fffef8] p-2 pb-10 sm:p-3 sm:pb-12 shadow-xl">
+                <div className="aspect-square overflow-hidden">
+                  <video
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  >
+                    <source src="/images/elio-video.mp4" type="video/mp4" />
+                  </video>
+                </div>
+              </div>
+            </motion.div>
+          </div>
         </motion.div>
 
         {/* About Us text */}
