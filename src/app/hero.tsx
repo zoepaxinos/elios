@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import Nav from "./components/nav";
@@ -150,6 +150,12 @@ function Draggable({
   style?: React.CSSProperties;
 }) {
   const [z, setZ] = useState(initialZ);
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    setIsMobile(window.innerWidth < 640);
+  }, []);
+
   const initial =
     popFrom === "left"
       ? { x: -80, rotate: rotation - 15, opacity: 0, scale: 0.7 }
@@ -159,17 +165,17 @@ function Draggable({
 
   return (
     <motion.div
-      drag
-      dragConstraints={constraintRef}
+      drag={!isMobile}
+      dragConstraints={isMobile ? undefined : constraintRef}
       dragElastic={0.15}
       dragMomentum={false}
-      whileHover={{ rotate: rotation + 8, scale: 1.05, transition: { type: "spring", stiffness: 400, damping: 15 } }}
-      whileDrag={{ scale: 1.06, cursor: "grabbing" }}
-      onDragStart={() => setZ(getNextZ())}
+      whileHover={isMobile ? undefined : { rotate: rotation + 8, scale: 1.05, transition: { type: "spring", stiffness: 400, damping: 15 } }}
+      whileDrag={isMobile ? undefined : { scale: 1.06, cursor: "grabbing" }}
+      onDragStart={isMobile ? undefined : () => setZ(getNextZ())}
       initial={initial}
       animate={{ scale: 1, rotate: rotation, opacity: 1, x: 0 }}
       transition={{ ...pop, delay }}
-      className={`absolute cursor-grab active:cursor-grabbing select-none ${className}`}
+      className={`absolute select-none ${isMobile ? "" : "cursor-grab active:cursor-grabbing"} ${className}`}
       style={{ ...style, zIndex: z }}
     >
       {children}
@@ -296,21 +302,22 @@ function InteractivePolaroid({
 const stickerLayout: {
   src: string; w: number; rot: number; top: string; left?: string; right?: string; delay: number; pop: "left" | "right" | "scale"; outlined?: boolean; hideOnMobile?: boolean;
 }[] = [
-  { src: "sticker-3", w: 461, rot: 0, top: "calc(5% + 40px)", left: "calc(18% - 90px)", delay: 0.15, pop: "left" },
-  { src: "sticker-4", w: 346, rot: 0, top: "5%", right: "calc(2% + 200px)", delay: 0.12, pop: "right", hideOnMobile: true },
-  { src: "sticker-cannoli", w: 294, rot: 0, top: "calc(25% - 180px)", left: "32%", delay: 0.3, pop: "scale", hideOnMobile: true },
-  { src: "sticker-iced-coffee", w: 286, rot: 0, top: "calc(4% + 600px)", right: "calc(0% + 200px)", delay: 0.22, pop: "right", outlined: true },
-  { src: "sticker-12", w: 299, rot: -18, top: "calc(9% + 50px)", left: "16%", delay: 0.2, pop: "left" },
-  { src: "sticker-6", w: 340, rot: 0, top: "11%", right: "0%", delay: 0.25, pop: "right" },
-  { src: "sticker-10", w: 346, rot: 0, top: "56%", left: "calc(28% + 130px)", delay: 0.35, pop: "scale", hideOnMobile: true },
-  { src: "sticker-16", w: 346, rot: 0, top: "35%", left: "-2%", delay: 0.32, pop: "left" },
-  { src: "sticker-13", w: 380, rot: 0, top: "35%", right: "-2%", delay: 0.3, pop: "right" },
+  { src: "sticker-3", w: 438, rot: 0, top: "calc(35% + 110px)", right: "calc(-2% - 10px)", delay: 0.15, pop: "right" },
+  { src: "sticker-4", w: 311, rot: 0, top: "5%", right: "calc(2% + 200px)", delay: 0.12, pop: "right", hideOnMobile: true },
+  { src: "sticker-cannoli", w: 294, rot: 0, top: "8%", left: "35%", delay: 0.3, pop: "scale" },
+  { src: "sticker-iced-coffee", w: 343, rot: 0, top: "calc(4% + 500px)", right: "calc(0% + 140px)", delay: 0.22, pop: "right", outlined: true },
+  { src: "sticker-12", w: 240, rot: -18, top: "35%", left: "-2%", delay: 0.2, pop: "left" },
+  { src: "sticker-6", w: 408, rot: 0, top: "calc(11% + 20px)", right: "0%", delay: 0.25, pop: "right" },
+  { src: "sticker-10", w: 380, rot: 0, top: "56%", left: "calc(25% + 10px)", delay: 0.35, pop: "scale" },
+  { src: "sticker-16", w: 311, rot: 0, top: "calc(9% + 85px)", left: "16%", delay: 0.32, pop: "left" },
+  { src: "sticker-13", w: 279, rot: 0, top: "calc(65% + 40px)", right: "calc(8% - 20px)", delay: 0.3, pop: "right" },
   { src: "sticker-7", w: 276, rot: -18, top: "80%", left: "0%", delay: 0.55, pop: "left" },
-  { src: "sticker-moka", w: 274, rot: 8, top: "calc(2% + 20px)", left: "calc(8% - 130px)", delay: 0.18, pop: "left" },
-  { src: "sticker-cup", w: 180, rot: 5, top: "80%", left: "18%", delay: 0.48, pop: "left" },
-  { src: "sticker-cocoa", w: 312, rot: -3, top: "calc(70% - 70px)", left: "15%", delay: 0.42, pop: "left" },
+  { src: "sticker-moka", w: 221, rot: 8, top: "40%", right: "3%", delay: 0.18, pop: "right" },
+  { src: "sticker-cup", w: 238, rot: 5, top: "calc(80% - 90px)", left: "calc(18% - 40px)", delay: 0.48, pop: "left" },
+  { src: "sticker-cocoa", w: 312, rot: -3, top: "calc(70% - 85px)", left: "calc(15% - 20px)", delay: 0.42, pop: "left" },
   { src: "sticker-logo-badge", w: 160, rot: 12, top: "8%", right: "15%", delay: 0.2, pop: "right" },
-  { src: "sticker-tomato-can", w: 180, rot: -5, top: "calc(60% + 800px)", right: "10%", delay: 0.4, pop: "right" },
+  { src: "sticker-5", w: 280, rot: -8, top: "calc(15% + 550px)", right: "5%", delay: 0.25, pop: "right" },
+  { src: "sticker-chefs", w: 300, rot: 3, top: "calc(5% + 40px)", left: "calc(18% - 90px)", delay: 0.35, pop: "left" },
 ];
 
 /* ── Main Hero ── */
@@ -329,7 +336,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
   const getNextZ = () => ++zCounter.current;
 
   return (
-    <div ref={constraintRef} className="relative">
+    <div ref={constraintRef} className="relative overflow-x-hidden">
     <section
       className="relative text-white"
       style={{ minHeight: "100vh", backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}
@@ -370,14 +377,14 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
     </section>
 
     {/* About section */}
-    <section className="relative text-white px-6 sm:px-10 py-20 sm:py-32" id="about" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
+    <section className="relative text-white px-6 sm:px-10 py-20 sm:py-32 " id="about" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
       {/* Card sticker */}
       <motion.div
         initial={{ opacity: 0, rotate: 15 }}
         whileInView={{ opacity: 1, rotate: 8 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.3 }}
-        className="absolute right-[5%] bottom-[8%] pointer-events-none"
+        className="absolute left-[3%] top-[5%] pointer-events-none"
         style={{ width: "clamp(80px, 10vw, 140px)" }}
       >
         <Image src="/images/sticker-card.png" alt="" width={140} height={200} className="w-full h-auto sticker-shadow" />
@@ -404,7 +411,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
               whileInView={{ opacity: 1, rotate: 5 }}
               viewport={{ once: true }}
               transition={{ duration: 0.8, delay: 0.4 }}
-              className="absolute top-[25%] left-[30%] w-[42%] sm:w-[38%] drop-shadow-2xl"
+              className="absolute top-[25%] left-[calc(30%-25px)] w-[38%] sm:w-[34%] drop-shadow-2xl"
             >
               <div className="bg-[#fffef8] p-2 pb-10 sm:p-3 sm:pb-12 shadow-xl">
                 <div className="aspect-square overflow-hidden">
@@ -430,7 +437,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-            className="text-[16px] uppercase tracking-[0.04em] mb-4 font-light"
+            className="text-[12px] uppercase tracking-[0.04em] mb-4 font-light"
             style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255, 255, 220, 0.8)" }}
           >
             {aboutSection?.heading || "About Us"}
@@ -440,7 +447,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="text-base sm:text-lg md:text-[24px] leading-[0.95] text-[#FFFFDC]"
+            className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]"
             style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}
           >
             {aboutSection?.body ? (
@@ -454,15 +461,27 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
     </section>
 
     {/* Menu section */}
-    <section className="relative text-white px-6 sm:px-10 pt-10 pb-20 sm:pb-32" id="menu" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
+    <section className="relative text-white px-6 sm:px-10 pt-10 pb-20 sm:pb-32 " id="menu" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
+      {/* Tinned tomatoes — behind panini sticker */}
+      <motion.div
+        initial={{ opacity: 0, x: 60 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.1 }}
+        className="absolute pointer-events-none z-[1]"
+        style={{ right: "calc(5% - 60px)", top: "calc(15% + 355px)", width: "clamp(96px, 11vw, 160px)" }}
+      >
+        <Image src="/images/sticker-tomato-can.png" alt="" width={162} height={162} className="w-full h-auto sticker-outlined -rotate-5" />
+      </motion.div>
+
       {/* Pasta night poster */}
       <motion.div
         initial={{ opacity: 0, x: -60 }}
         whileInView={{ opacity: 1, x: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.15 }}
-        className="absolute left-[3%] top-[3%] pointer-events-none z-[100]"
-        style={{ width: "clamp(144px, 17vw, 240px)" }}
+        className="absolute pointer-events-none z-[1]"
+        style={{ left: "calc(3% + 590px)", top: "calc(3% - 140px)", width: "clamp(144px, 17vw, 240px)", zIndex: 0 }}
       >
         <Image src="/images/sticker-poster.png" alt="" width={240} height={336} className="w-full h-auto sticker-shadow" />
       </motion.div>
@@ -486,7 +505,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.3 }}
         className="absolute right-[3%] pointer-events-none z-[100]"
-        style={{ top: "calc(3% - 100px)", width: "clamp(252px, 29vw, 432px)" }}
+        style={{ top: "calc(3% - 100px)", width: "clamp(214px, 25vw, 367px)" }}
       >
         <Image src="/images/sticker-7.png" alt="" width={497} height={497} className="w-full h-auto sticker-shadow" />
       </motion.div>
@@ -495,7 +514,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true }}
         transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        className="text-[16px] uppercase tracking-[0.04em] mb-10 font-light text-center"
+        className="text-[12px] uppercase tracking-[0.04em] mb-10 font-light text-left"
         style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255, 255, 220, 0.8)" }}
       >
         {cafeInfo?.menuHeading || "Our Menu"}
@@ -512,90 +531,138 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
     </section>
 
     {/* Catering section */}
-    <section className="relative text-white px-6 sm:px-10 py-20 sm:py-32" id="catering" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
-      {/* Polaroid */}
-      <motion.div
-        initial={{ opacity: 0, rotate: 10 }}
-        whileInView={{ opacity: 1, rotate: -6 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute right-[5%] pointer-events-none"
-        style={{ top: "calc(8% - 60px)", width: "clamp(144px, 16vw, 240px)" }}
-      >
-        <Image src="/images/Elios_Polaroids_1.png" alt="Elio's" width={408} height={491} className="w-full h-auto drop-shadow-xl" />
-      </motion.div>
-
-      {/* Tomato sticker */}
-      <motion.div
-        initial={{ opacity: 0, x: -60 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute left-[3%] pointer-events-none"
-        style={{ bottom: "calc(10% - 80px)", width: "clamp(169px, 21vw, 304px)" }}
-      >
-        <Image src="/images/sticker-tomato-single.png" alt="" width={304} height={304} className="w-full h-auto sticker-shadow" />
-      </motion.div>
-
-      {/* Cup sticker */}
-      <motion.div
-        initial={{ opacity: 0, x: 60 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.8, delay: 0.2 }}
-        className="absolute right-[5%] top-[10%] pointer-events-none"
-        style={{ width: "clamp(140px, 16vw, 240px)" }}
-      >
-        <Image src="/images/sticker-cup.png" alt="" width={180} height={180} className="w-full h-auto sticker-shadow" />
-      </motion.div>
-
-
-      <div className="max-w-3xl mx-auto">
-        <motion.p
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
+    <section className="relative text-white px-6 sm:px-10 py-20 sm:py-32 " id="catering" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-12">
+        {/* Left side — stickers and images */}
+        <motion.div
+          initial={{ opacity: 0, x: -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[16px] uppercase tracking-[0.04em] mb-8 font-light"
-          style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255, 255, 220, 0.8)" }}
+          className="flex-shrink-0 w-full md:w-[50%] relative"
+          style={{ minHeight: "clamp(300px, 30vw, 500px)" }}
         >
-          {cafeInfo?.cateringHeading || "Catering"}
-        </motion.p>
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {cafeInfo?.cateringText ? (
-            <div className="text-base sm:text-lg md:text-[24px] leading-[0.95] text-[#FFFFDC]" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>
-              <PortableText value={cafeInfo.cateringText} />
-            </div>
-          ) : (
-            <>
-              <p className="text-base sm:text-lg md:text-[24px] leading-[0.95] text-[#FFFFDC] mb-8" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>
-                From office lunches to private events, we bring Elio&apos;s to you. Our catering menu features our signature paninis, fresh focaccia, platters, and of course, proper Italian coffee.
-              </p>
-              <p className="text-base sm:text-lg md:text-[24px] leading-[0.95] text-[#FFFFDC] mb-12" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>
-                Get in touch to discuss your next event.
-              </p>
-              <div className="flex flex-col sm:flex-row gap-6 sm:gap-12" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
-                <div>
-                  <p className="text-[#FFFFDC] text-lg leading-relaxed">(03) 9191 0107</p>
-                  <p className="text-[#FFFFDC] text-lg leading-relaxed">info@elioscoburg.com</p>
-                </div>
-                <div>
-                  <a href="https://instagram.com/elios.coburg" target="_blank" rel="noopener noreferrer" className="text-[#FFFFDC] text-lg leading-relaxed underline underline-offset-4 hover:text-white transition-colors">@elios.coburg</a>
-                </div>
-              </div>
-            </>
-          )}
+          {/* Polaroid */}
+          <motion.div
+            initial={{ opacity: 0, rotate: 10 }}
+            whileInView={{ opacity: 1, rotate: -6 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="absolute left-[5%] top-[5%]"
+            style={{ width: "clamp(144px, 16vw, 240px)" }}
+          >
+            <Image src="/images/Elios_Polaroids_Crds.png" alt="Elio's" width={408} height={491} className="w-full h-auto drop-shadow-xl" />
+          </motion.div>
+
+          {/* Catering polaroid */}
+          <motion.div
+            initial={{ opacity: 0, rotate: 15 }}
+            whileInView={{ opacity: 1, rotate: 6 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.15 }}
+            className="absolute left-[calc(5%+30px)] sm:left-[5%] bottom-[5%]"
+            style={{ width: "clamp(143px, 17vw, 242px)" }}
+          >
+            <Image src="/images/catering-polaroid.png" alt="Catering" width={408} height={491} className="w-full h-auto drop-shadow-xl" />
+          </motion.div>
+
+          {/* Holding panini */}
+          <motion.div
+            initial={{ opacity: 0, x: -40 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.3 }}
+            className="absolute right-[5%] top-[10%]"
+            style={{ width: "clamp(160px, 20vw, 300px)" }}
+          >
+            <Image src="/images/sticker-holding-panini-v2.png" alt="" width={300} height={300} className="w-full h-auto sticker-shadow" />
+          </motion.div>
+
+          {/* Tomato sticker */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.35 }}
+            className="absolute left-[25%] bottom-[5%]"
+            style={{ width: "clamp(120px, 14vw, 200px)" }}
+          >
+            <Image src="/images/sticker-tomato-single.png" alt="" width={304} height={304} className="w-full h-auto sticker-shadow" />
+          </motion.div>
+
+          {/* Cup sticker */}
+          <motion.div
+            initial={{ opacity: 0, scale: 0.8 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.4 }}
+            className="absolute right-[10%] bottom-[15%]"
+            style={{ width: "clamp(100px, 12vw, 160px)" }}
+          >
+            <Image src="/images/sticker-cup.png" alt="" width={180} height={180} className="w-full h-auto sticker-shadow" />
+          </motion.div>
         </motion.div>
+
+        {/* Right side — text */}
+        <div className="flex-1">
+          <motion.p
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="text-[12px] uppercase tracking-[0.04em] mb-8 font-light"
+            style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255, 255, 220, 0.8)" }}
+          >
+            {cafeInfo?.cateringHeading || "Catering"}
+          </motion.p>
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          >
+            {cafeInfo?.cateringText ? (
+              <div className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>
+                <PortableText value={cafeInfo.cateringText} />
+              </div>
+            ) : (
+              <>
+                <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC] mb-8" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>
+                  From office lunches to private events, we bring Elio&apos;s to you. Our catering menu features our signature paninis, fresh focaccia, platters, and of course, proper Italian coffee.
+                </p>
+                <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC] mb-12" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>
+                  Get in touch to discuss your next event.
+                </p>
+                <div className="flex flex-col sm:flex-row gap-6 sm:gap-12" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                  <div>
+                    <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">(03) 9191 0107</p>
+                    <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">info@elioscoburg.com</p>
+                  </div>
+                  <div>
+                    <a href="https://instagram.com/elios.coburg" target="_blank" rel="noopener noreferrer" className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC] underline underline-offset-4 hover:text-white transition-colors" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>@elios.coburg</a>
+                  </div>
+                </div>
+              </>
+            )}
+          </motion.div>
+        </div>
       </div>
     </section>
 
     {/* Contact section */}
     <section className="relative text-white px-6 sm:px-10 py-20 sm:py-32" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
+      {/* Loyalty card */}
+      <motion.div
+        initial={{ opacity: 0, x: -60 }}
+        whileInView={{ opacity: 1, x: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 0.8, delay: 0.2 }}
+        className="absolute pointer-events-none"
+        style={{ left: "calc(5% + 130px)", top: "calc(10% + 60px)", width: "clamp(152px, 17vw, 247px)" }}
+      >
+        <Image src="/images/sticker-loyalty-card.png" alt="" width={260} height={260} className="w-full h-auto sticker-shadow -rotate-6" />
+      </motion.div>
+
       {/* Contact receipts sticker */}
       <motion.div
         initial={{ opacity: 0, rotate: 10 }}
@@ -603,7 +670,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         viewport={{ once: true }}
         transition={{ duration: 0.8, delay: 0.3 }}
         className="absolute right-[5%] pointer-events-none"
-        style={{ top: "calc(8% - 200px)", width: "clamp(240px, 30vw, 450px)" }}
+        style={{ top: "calc(8% - 150px)", width: "clamp(240px, 30vw, 450px)" }}
       >
         <Image src="/images/sticker-contactus-receipts.png" alt="" width={450} height={450} className="w-full h-auto sticker-shadow" />
       </motion.div>
@@ -614,7 +681,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-          className="text-[16px] uppercase tracking-[0.04em] mb-10 font-light"
+          className="text-[12px] uppercase tracking-[0.04em] mb-10 font-light"
           style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255, 255, 220, 0.8)" }}
         >
           {cafeInfo?.contactHeading || "Contact"}
@@ -625,40 +692,43 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           viewport={{ once: true }}
           transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-16"
-          style={{ fontFamily: "'Times New Roman', Times, serif" }}
+          style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}
         >
           <div>
-            <p className="text-[#FFFFDC] text-lg leading-relaxed">{cafeInfo?.address || "70 Newlands Road"}</p>
-            <p className="text-[#FFFFDC] text-lg leading-relaxed">Coburg North, 3058</p>
-            <p className="text-[#FFFFDC] text-lg leading-relaxed">Melbourne</p>
+            <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">{cafeInfo?.address || "70 Newlands Road"}</p>
+            <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">Coburg North, 3058</p>
+            <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">Melbourne</p>
           </div>
           <div>
-            <p className="text-[#FFFFDC] text-lg leading-relaxed">{cafeInfo?.instagram || "elios.coburg"}</p>
-            <p className="text-[#FFFFDC] text-lg leading-relaxed">{cafeInfo?.phone || "(03) 9191 0107"}</p>
-            <p className="text-[#FFFFDC] text-lg leading-relaxed">{cafeInfo?.email || "info@elioscoburg.com"}</p>
+            <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">{cafeInfo?.instagram || "elios.coburg"}</p>
+            <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">{cafeInfo?.phone || "(03) 9191 0107"}</p>
+            <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">{cafeInfo?.email || "info@elioscoburg.com"}</p>
           </div>
           <div>
             {cafeInfo?.hours && cafeInfo.hours.length > 0 ? (
-              cafeInfo.hours.map((h: any, i: number) => (
-                <p key={i} className="text-[#FFFFDC] text-lg leading-relaxed">{h.days} {h.time}</p>
-              ))
+              cafeInfo.hours.map((h: any, i: number) => {
+                const days = (h.days || "")
+                  .replace(/Monday/i, "MON").replace(/Tuesday/i, "TUE").replace(/Wednesday/i, "WED")
+                  .replace(/Thursday/i, "THU").replace(/Friday/i, "FRI").replace(/Saturday/i, "SAT").replace(/Sunday/i, "SUN");
+                return <p key={i} className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">{days} {h.time}</p>;
+              })
             ) : (
               <>
-                <p className="text-[#FFFFDC] text-lg leading-relaxed">Monday – Friday 7am – 2:30pm</p>
-                <p className="text-[#FFFFDC] text-lg leading-relaxed">Saturday 8am – 2:30pm</p>
-                <p className="text-[#FFFFDC] text-lg leading-relaxed">Sunday 9am – 2:30pm</p>
+                <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">MON – FRI 7am – 2:30pm</p>
+                <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">SAT 8am – 2:30pm</p>
+                <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">SUN 9am – 2:30pm</p>
               </>
             )}
           </div>
         </motion.div>
         <div className="flex items-center gap-5 mt-8">
           <a href="https://instagram.com/elios.coburg" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,220,0.8)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="2" width="20" height="20" rx="5" /><circle cx="12" cy="12" r="5" /><circle cx="17.5" cy="6.5" r="1" fill="rgba(255,255,255,0.5)" stroke="none" />
             </svg>
           </a>
           <a href="mailto:info@elioscoburg.com" aria-label="Email">
-            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,220,0.8)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
               <rect x="2" y="4" width="20" height="16" rx="2" /><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7" />
             </svg>
           </a>

@@ -19,7 +19,7 @@ export default function Nav({ items }: NavProps) {
   const navItems = items && items.length > 0 ? items : defaultNavItems;
 
   return (
-    <nav className="relative z-40 flex justify-center gap-4 sm:gap-6 px-6 pt-8 sm:pt-10">
+    <nav className="relative z-40 flex justify-center gap-2 sm:gap-6 px-4 pt-8 sm:pt-10">
       {navItems.map((item, i) => (
         <motion.a
           key={item.label}
@@ -27,7 +27,7 @@ export default function Nav({ items }: NavProps) {
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ ...pop, delay: 0.5 + i * 0.08 }}
-          className="text-sm uppercase tracking-[0.04em] hover:text-[#eeece6] transition-colors"
+          className="text-[8px] sm:text-sm uppercase tracking-[0.04em] hover:text-[#eeece6] transition-colors"
           style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", fontWeight: 300, color: "#FFFFDC" }}
         >
           {item.label}
