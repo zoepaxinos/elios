@@ -31,6 +31,7 @@ function MapInner() {
           center: [ELIOS_LNG, ELIOS_LAT],
           zoom: 15,
           attributionControl: false,
+          cooperativeGestures: true,
         });
 
         // Elio's E icon marker

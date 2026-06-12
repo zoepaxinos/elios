@@ -4,7 +4,13 @@ import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
 import { SanityLive } from "@/sanity/live";
 import { DisableDraftMode } from "./components/disable-draft-mode";
+import MotionProvider from "./components/motion-provider";
+import { sanityFetch } from "@/sanity/live";
+import { seoSettingsQuery } from "@/sanity/queries";
+import { urlFor } from "@/sanity/image";
 import "./globals.css";
+
+const SITE_URL = "https://elioscoburg.com.au";
 
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
@@ -29,10 +35,41 @@ const caveat = Caveat({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "Elio's Cafe",
-  description: "Welcome to Elio's — Coburg",
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const { data } = await sanityFetch({ query: seoSettingsQuery });
+  const seo = data as {
+    metaTitle?: string;
+    metaDescription?: string;
+    ogImage?: any;
+  } | null;
+
+  const title = seo?.metaTitle || "Elio's Panino Italiano";
+  const description =
+    seo?.metaDescription ||
+    "Authentic panini, focaccia and proper Italian coffee in Coburg North, Melbourne.";
+  const ogImage = seo?.ogImage
+    ? urlFor(seo.ogImage).width(1200).height(630).fit("crop").url()
+    : "/og-default.png";
+
+  return {
+    metadataBase: new URL(SITE_URL),
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      siteName: "Elio's Panino Italiano",
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: {
+      card: "summary_large_image",
+      title,
+      description,
+      images: [ogImage],
+    },
+  };
+}
 
 export default async function RootLayout({
   children,
@@ -47,7 +84,7 @@ export default async function RootLayout({
       className={`${cormorant.variable} ${karla.variable} ${overpass.variable} ${caveat.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#13322b] text-espresso font-body">
-        {children}
+        <MotionProvider>{children}</MotionProvider>
         <SanityLive />
         {isDraftMode && (
           <>
