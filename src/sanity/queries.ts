@@ -1,5 +1,11 @@
 import { groq } from "next-sanity";
 
+export const seoSettingsQuery = groq`*[_type == "seoSettings"][0]{
+  metaTitle,
+  metaDescription,
+  ogImage
+}`;
+
 export const cafeInfoQuery = groq`*[_type == "cafeInfo"][0]{
   name,
   tagline,

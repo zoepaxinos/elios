@@ -4,7 +4,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import PageLayout from "../components/page-layout";
 
-const pop = { type: "spring" as const, stiffness: 260, damping: 22 };
+const pop = { type: "spring" as const, stiffness: 420, damping: 32 };
 
 export default function AboutPage() {
   return (
@@ -12,7 +12,7 @@ export default function AboutPage() {
       <section className="relative px-6 sm:px-10 py-20 sm:py-32 overflow-hidden" style={{ minHeight: "clamp(600px, 50vw, 900px)" }}>
         {/* Polaroid — Pete */}
         <motion.div
-          initial={{ opacity: 0, x: -60, rotate: -20 }}
+          initial={{ opacity: 0, x: -24, rotate: -20 }}
           whileInView={{ opacity: 1, x: 0, rotate: -4 }}
           viewport={{ once: true }}
           transition={{ ...pop, delay: 0.1 }}
@@ -24,7 +24,7 @@ export default function AboutPage() {
 
         {/* Polaroid — Elio */}
         <motion.div
-          initial={{ opacity: 0, x: -40, rotate: 15 }}
+          initial={{ opacity: 0, x: -16, rotate: 15 }}
           whileInView={{ opacity: 1, x: 0, rotate: 0.5 }}
           viewport={{ once: true }}
           transition={{ ...pop, delay: 0.2 }}
@@ -39,7 +39,7 @@ export default function AboutPage() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 0.35, delay: 0.4 }}
           className="absolute z-30 pointer-events-none"
           style={{ top: "6%", left: "34%", width: "clamp(120px, 16vw, 240px)" }}
         >
@@ -49,7 +49,7 @@ export default function AboutPage() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 0.5 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.5 }}
+          transition={{ duration: 0.45, delay: 0.3 }}
           className="absolute z-30 pointer-events-none"
           style={{ top: "12%", left: "28%", width: "clamp(100px, 14vw, 220px)" }}
         >
@@ -61,7 +61,7 @@ export default function AboutPage() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          transition={{ duration: 0.35, delay: 0.5 }}
           className="absolute z-30 pointer-events-none"
           style={{ top: "calc(58% + 60px)", left: "30%", width: "clamp(120px, 16vw, 240px)" }}
         >
@@ -71,7 +71,7 @@ export default function AboutPage() {
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 0.5 }}
           viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.6 }}
+          transition={{ duration: 0.45, delay: 0.35 }}
           className="absolute z-30 pointer-events-none"
           style={{ top: "55%", left: "26%", width: "clamp(100px, 14vw, 220px)" }}
         >
@@ -81,20 +81,20 @@ export default function AboutPage() {
         {/* About Us text */}
         <div className="absolute z-30" style={{ top: "20%", left: "60%", maxWidth: "min(500px, 30vw)" }}>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.35, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
             className="text-[20px] uppercase tracking-[0.04em] text-white/50 mb-4 font-light"
             style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif" }}
           >
             About Us
           </motion.p>
           <motion.p
-            initial={{ opacity: 0, y: 20 }}
+            initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.35, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
             className="text-base sm:text-lg md:text-[24px] leading-[0.95] text-[#eeece6]"
             style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}
           >
@@ -106,10 +106,10 @@ export default function AboutPage() {
 
         {/* Loyalty card */}
         <motion.div
-          initial={{ opacity: 0, x: 60 }}
+          initial={{ opacity: 0, x: 24 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.4 }}
+          transition={{ duration: 0.35, delay: 0.4 }}
           className="absolute right-[3%] top-[5%]"
           style={{ width: "clamp(160px, 18vw, 260px)" }}
         >
@@ -121,7 +121,7 @@ export default function AboutPage() {
           initial={{ opacity: 0, rotate: 15 }}
           whileInView={{ opacity: 1, rotate: 6 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.5 }}
+          transition={{ duration: 0.35, delay: 0.5 }}
           className="absolute right-[8%] bottom-[10%]"
           style={{ width: "clamp(140px, 16vw, 240px)" }}
         >

@@ -54,10 +54,10 @@ export default function MenuPage() {
       <section className="relative px-6 sm:px-10 pt-10 pb-20 sm:pb-32">
         {/* Panini + iced coffee sticker */}
         <motion.div
-          initial={{ opacity: 0, x: 60 }}
+          initial={{ opacity: 0, x: 24 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, delay: 0.3 }}
+          transition={{ duration: 0.35, delay: 0.3 }}
           className="absolute right-[3%] top-[3%] pointer-events-none"
           style={{ width: "clamp(140px, 16vw, 240px)" }}
         >
@@ -65,10 +65,10 @@ export default function MenuPage() {
         </motion.div>
 
         <motion.p
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="text-[20px] uppercase tracking-[0.04em] text-white/50 mb-10 font-light"
           style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif" }}
         >
@@ -76,18 +76,18 @@ export default function MenuPage() {
         </motion.p>
         <div className="relative max-w-5xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 14 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           >
             <MenuImage src="/images/menu-1.png" />
           </motion.div>
           <motion.div
-            initial={{ opacity: 0, y: 30, rotate: 0.5 }}
-            whileInView={{ opacity: 1, y: -40, rotate: 0.5 }}
+            initial={{ opacity: 0, y: 14, rotate: 0.5 }}
+            whileInView={{ opacity: 1, y: -16, rotate: 0.5 }}
             viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
+            transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
             className="mt-12 ml-4"
           >
             <MenuImage src="/images/menu-2.png" />

@@ -18,7 +18,7 @@ export default function ContactPage() {
           initial={{ opacity: 0, scale: 0.8, rotate: 20 }}
           whileInView={{ opacity: 1, scale: 1, rotate: 5 }}
           viewport={{ once: true }}
-          transition={{ type: "spring", stiffness: 260, damping: 22, delay: 0.3 }}
+          transition={{ type: "spring", stiffness: 420, damping: 32, delay: 0.3 }}
           className="absolute right-[8%] top-[8%]"
           style={{ width: "clamp(180px, 20vw, 280px)" }}
         >
@@ -65,40 +65,32 @@ export default function ContactPage() {
         </motion.div>
 
         <div className="max-w-4xl mx-auto">
-          <motion.p
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+          <p
             className="text-[20px] uppercase tracking-[0.04em] text-white/50 mb-10 font-light"
             style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif" }}
           >
             Contact
-          </motion.p>
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
+          </p>
+          <div
             className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-16"
             style={{ fontFamily: "'Times New Roman', Times, serif" }}
           >
             <div>
-              <p className="text-[#eeece6] text-lg leading-relaxed">70 Newlands Road</p>
-              <p className="text-[#eeece6] text-lg leading-relaxed">Coburg North, 3058</p>
-              <p className="text-[#eeece6] text-lg leading-relaxed">Melbourne</p>
+              <p className="text-[#eeece6] text-2xl leading-relaxed">70 Newlands Road</p>
+              <p className="text-[#eeece6] text-2xl leading-relaxed">Coburg North, 3058</p>
+              <p className="text-[#eeece6] text-2xl leading-relaxed">Melbourne</p>
             </div>
             <div>
-              <p className="text-[#eeece6] text-lg leading-relaxed">elios.coburg</p>
-              <p className="text-[#eeece6] text-lg leading-relaxed">(03) 9191 0107</p>
-              <p className="text-[#eeece6] text-lg leading-relaxed">info@elioscoburg.com</p>
+              <p className="text-[#eeece6] text-2xl leading-relaxed">elios.coburg</p>
+              <p className="text-[#eeece6] text-2xl leading-relaxed">(03) 9191 0107</p>
+              <a href="mailto:info@elioscoburg.com" className="block text-[#eeece6] text-2xl leading-relaxed hover:text-white transition-colors">info@elioscoburg.com</a>
             </div>
             <div>
-              <p className="text-[#eeece6] text-lg leading-relaxed">Monday – Friday 7am – 2:30pm</p>
-              <p className="text-[#eeece6] text-lg leading-relaxed">Saturday 8am – 2:30pm</p>
-              <p className="text-[#eeece6] text-lg leading-relaxed">Sunday 9am – 2:30pm</p>
+              <p className="text-[#eeece6] text-2xl leading-relaxed">Monday – Friday 7am – 2:30pm</p>
+              <p className="text-[#eeece6] text-2xl leading-relaxed">Saturday 8am – 2:30pm</p>
+              <p className="text-[#eeece6] text-2xl leading-relaxed">Sunday 9am – 2:30pm</p>
             </div>
-          </motion.div>
+          </div>
           <div className="flex items-center gap-5 mt-8">
             <a href="https://instagram.com/elios.coburg" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
               <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.5)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
