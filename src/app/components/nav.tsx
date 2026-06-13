@@ -145,7 +145,7 @@ export default function Nav({ items }: NavProps) {
   }, [navItems]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[10000] flex justify-center gap-[23px] sm:gap-[53px] px-4 pt-3 sm:pt-4">
+    <nav className="fixed top-0 left-0 right-0 z-[10000] flex justify-center gap-[13px] sm:gap-[43px] px-4 pt-3 sm:pt-4">
       {navItems.map((item) => (
         <NavItem key={item.label} item={item} active={activeId === item.href.replace(/^#/, "")} />
       ))}
