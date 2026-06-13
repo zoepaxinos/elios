@@ -344,7 +344,7 @@ const stickerLayout: {
 }[] = [
   { src: "sticker-3", w: 438, rot: 0, top: "calc(35% + 110px)", right: "calc(-2% - 10px)", delay: 0.15, pop: "right" },
   { src: "sticker-4", w: 311, rot: 0, top: "5%", right: "calc(2% + 200px)", delay: 0.12, pop: "right", hideOnMobile: true },
-  { src: "sticker-cannoli", w: 294, rot: 0, top: "8%", left: "35%", delay: 0.3, pop: "scale" },
+  { src: "sticker-cannoli", w: 294, rot: 0, top: "calc(8% - 100px)", left: "35%", delay: 0.3, pop: "scale" },
   { src: "sticker-iced-coffee", w: 343, rot: 0, top: "calc(4% + 500px)", right: "calc(0% + 140px)", delay: 0.22, pop: "right", outlined: true },
   { src: "sticker-12", w: 240, rot: -18, top: "35%", left: "-2%", delay: 0.2, pop: "left" },
   { src: "sticker-6", w: 408, rot: 0, top: "calc(11% + 20px)", right: "0%", delay: 0.25, pop: "right" },
@@ -354,9 +354,9 @@ const stickerLayout: {
   { src: "sticker-7", w: 276, rot: -18, top: "80%", left: "0%", delay: 0.55, pop: "left" },
   { src: "sticker-moka", w: 221, rot: 8, top: "40%", right: "3%", delay: 0.18, pop: "right" },
   { src: "sticker-cup", w: 238, rot: 5, top: "calc(80% - 90px)", left: "calc(18% - 40px)", delay: 0.48, pop: "left" },
-  { src: "sticker-cocoa", w: 312, rot: -3, top: "calc(70% - 85px)", left: "calc(15% - 20px)", delay: 0.42, pop: "left" },
+  { src: "sticker-cocoa", w: 312, rot: -3, top: "calc(70% - 115px)", left: "calc(15% - 20px)", delay: 0.42, pop: "left" },
   { src: "sticker-logo-badge", w: 160, rot: 12, top: "8%", right: "15%", delay: 0.2, pop: "right" },
-  { src: "sticker-5", w: 280, rot: -8, top: "calc(15% + 550px)", right: "5%", delay: 0.25, pop: "right" },
+  { src: "sticker-5", w: 280, rot: -8, top: "calc(15% + 650px)", right: "5%", delay: 0.25, pop: "right" },
   { src: "sticker-chefs", w: 300, rot: 3, top: "calc(5% + 40px)", left: "calc(18% - 90px)", delay: 0.35, pop: "left" },
 ];
 
@@ -561,16 +561,6 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
       >
         <Image src="/images/sticker-7.png" alt="" width={497} height={497} sizes="497px" className="w-full h-auto sticker-shadow" />
       </motion.div>
-      <motion.p
-        initial={{ opacity: 0, y: 10 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-        className="text-[12px] uppercase tracking-[0.04em] mb-10 font-light text-left"
-        style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255, 255, 220, 0.8)" }}
-      >
-        {cafeInfo?.menuHeading || "Our Menu"}
-      </motion.p>
       <motion.div
         initial={{ opacity: 0, y: 14 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -745,12 +735,12 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-          className="flex justify-center mb-12 sm:mb-14"
+          className="flex justify-start mb-12 sm:mb-14"
         >
           <Image src="/images/logo-circle.png" alt="Elio's" width={371} height={371} sizes="120px" className="w-[96px] sm:w-[120px] h-auto" />
         </motion.div>
 
-        {/* Contact details — HOURS / CONTACT / VISIT */}
+        {/* Contact details — VISIT / CONTACT / HOURS */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -758,40 +748,6 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           transition={{ duration: 0.35, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
           className="grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-16"
         >
-          {/* HOURS */}
-          <div>
-            <p
-              className="text-[11px] uppercase tracking-[0.18em] mb-4"
-              style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255,255,220,0.55)" }}
-            >
-              Hours
-            </p>
-            <div style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.01em" }}>
-              {hoursRows.map((h, i) => (
-                <div key={i} className="flex items-baseline leading-[1.2] text-lg sm:text-xl md:text-2xl text-[#FFFFDC]">
-                  <span className="whitespace-nowrap">{h.days}</span>
-                  <span aria-hidden="true" className="flex-1 overflow-hidden mx-2 text-[#FFFFDC]/40 tracking-[0.25em] whitespace-nowrap">............................................................</span>
-                  <span className="whitespace-nowrap">{h.time}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* CONTACT */}
-          <div>
-            <p
-              className="text-[11px] uppercase tracking-[0.18em] mb-4"
-              style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255,255,220,0.55)" }}
-            >
-              Contact
-            </p>
-            <div style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.01em" }}>
-              <a href={`tel:${phone.replace(/[^0-9+]/g, "")}`} className="block text-lg sm:text-xl md:text-2xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">{phone}</a>
-              <a href={`mailto:${email}`} className="block text-lg sm:text-xl md:text-2xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors break-all">{email}</a>
-              <a href={`https://instagram.com/${igHandle}`} target="_blank" rel="noopener noreferrer" className="block text-lg sm:text-xl md:text-2xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">@{igHandle}</a>
-            </div>
-          </div>
-
           {/* VISIT */}
           <div>
             <p
@@ -815,6 +771,40 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
                 <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1">→</span>
               </p>
             </a>
+          </div>
+
+          {/* CONTACT */}
+          <div>
+            <p
+              className="text-[11px] uppercase tracking-[0.18em] mb-4"
+              style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255,255,220,0.55)" }}
+            >
+              Contact
+            </p>
+            <div style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.01em" }}>
+              <a href={`tel:${phone.replace(/[^0-9+]/g, "")}`} className="block text-lg sm:text-xl md:text-2xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">{phone}</a>
+              <a href={`mailto:${email}`} className="block text-lg sm:text-xl md:text-2xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors break-all">{email}</a>
+              <a href={`https://instagram.com/${igHandle}`} target="_blank" rel="noopener noreferrer" className="block text-lg sm:text-xl md:text-2xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">@{igHandle}</a>
+            </div>
+          </div>
+
+          {/* HOURS */}
+          <div>
+            <p
+              className="text-[11px] uppercase tracking-[0.18em] mb-4"
+              style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255,255,220,0.55)" }}
+            >
+              Hours
+            </p>
+            <div style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.01em" }}>
+              {hoursRows.map((h, i) => (
+                <div key={i} className="flex items-baseline leading-[1.2] text-lg sm:text-xl md:text-2xl text-[#FFFFDC]">
+                  <span className="whitespace-nowrap">{h.days}</span>
+                  <span aria-hidden="true" className="flex-1 overflow-hidden mx-2 text-[#FFFFDC]/40 tracking-[0.25em] whitespace-nowrap">............................................................</span>
+                  <span className="whitespace-nowrap">{h.time}</span>
+                </div>
+              ))}
+            </div>
           </div>
         </motion.div>
       </div>
