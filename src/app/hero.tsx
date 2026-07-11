@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Nav from "./components/nav";
 import Map from "./components/map";
 import { PortableText } from "@portabletext/react";
 import { urlFor } from "@/sanity/image";
@@ -482,9 +481,6 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
       className="relative text-white"
       style={{ minHeight: "100vh", backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}
     >
-
-      {/* Navigation */}
-      <Nav items={navigation?.items} />
 
       {/* Stickers */}
       {stickerLayout.map((s, i) => (
