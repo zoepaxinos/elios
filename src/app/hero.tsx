@@ -10,25 +10,94 @@ import { urlFor } from "@/sanity/image";
 /* ── Menu Book (side by side + lightbox with page nav) ── */
 const defaultMenuPages = ["/images/menu-2.png", "/images/menu-1.png"];
 
+/* Tri-fold panels in reading order: cover → panini caldi → panini freschi →
+   9:30am menu → coffee & drinks → contact. Shown as a swipeable carousel on mobile. */
+const foldPages = [
+  "/images/menu-fold-1.png",
+  "/images/menu-fold-2.png",
+  "/images/menu-fold-3.png",
+  "/images/menu-fold-4.png",
+  "/images/menu-fold-5.png",
+  "/images/menu-fold-6.png",
+];
+
+/* Which full spread each fold panel belongs to. Default menuPageUrls order is
+   [side 2 (inside menu), side 1 (outside)], so inside panels → 0, outside → 1.
+   Tapping a panel opens that full page in the viewer. */
+const foldToSpread = [1, 0, 0, 0, 1, 1];
+
 function MenuBook({ pages }: { pages?: string[] }) {
   const menuPageUrls = pages && pages.length > 0 ? pages : defaultMenuPages;
   const [open, setOpen] = useState(false);
-  const [activePage, setActivePage] = useState(0);
-  const [scale, setScale] = useState(1);
+  const [startPage, setStartPage] = useState(0);
+  const [viewerPages, setViewerPages] = useState<string[]>(menuPageUrls);
+  const [viewerCurrent, setViewerCurrent] = useState(0);
 
-  const openViewer = (page: number) => {
-    setActivePage(page);
-    setScale(1);
+  const openViewer = (pagesToView: string[], page: number) => {
+    setViewerPages(pagesToView);
+    setStartPage(page);
+    setViewerCurrent(page);
     setOpen(true);
+  };
+
+  /* ── full-page viewer: swipe to page, pinch to zoom, tap outside to close ── */
+  const viewerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!open) return;
+    const el = viewerRef.current;
+    const child = el?.children[startPage] as HTMLElement | undefined;
+    if (el && child) el.scrollLeft = child.offsetLeft;
+  }, [open, startPage]);
+
+  const onViewerScroll = () => {
+    const el = viewerRef.current;
+    if (!el) return;
+    setViewerCurrent(Math.round(el.scrollLeft / el.clientWidth));
+  };
+
+  const goToViewer = (i: number) => {
+    const el = viewerRef.current;
+    const child = el?.children[i] as HTMLElement | undefined;
+    if (el && child) el.scrollTo({ left: child.offsetLeft, behavior: "smooth" });
+  };
+
+  /* ── mobile carousel position tracking ── */
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [current, setCurrent] = useState(0);
+
+  const onTrackScroll = () => {
+    const el = trackRef.current;
+    if (!el) return;
+    const center = el.scrollLeft + el.clientWidth / 2;
+    let best = 0;
+    let bestDist = Infinity;
+    Array.from(el.children).forEach((child, i) => {
+      const c = child as HTMLElement;
+      const childCenter = c.offsetLeft + c.offsetWidth / 2;
+      const d = Math.abs(childCenter - center);
+      if (d < bestDist) {
+        bestDist = d;
+        best = i;
+      }
+    });
+    setCurrent(best);
+  };
+
+  const goTo = (i: number) => {
+    const el = trackRef.current;
+    const child = el?.children[i] as HTMLElement | undefined;
+    if (!el || !child) return;
+    el.scrollTo({ left: child.offsetLeft - (el.clientWidth - child.offsetWidth) / 2, behavior: "smooth" });
   };
 
   return (
     <>
-      {/* Stacked menu pages on a slight angle (click to open viewer) */}
-      <div className="relative max-w-4xl mx-auto">
+      {/* ── Desktop: stacked spreads on a slight angle (click to open viewer) ── */}
+      <div className="relative max-w-4xl mx-auto hidden sm:block">
         {menuPageUrls[1] && (
           <div
-            onClick={() => openViewer(1)}
+            onClick={() => openViewer(menuPageUrls, 1)}
             className="absolute inset-0 rounded-md border-[6px] border-[#ffffdc] shadow-2xl cursor-pointer hover:brightness-105 transition overflow-hidden"
             style={{ transform: "rotate(-4deg)", zIndex: 0 }}
           >
@@ -36,7 +105,7 @@ function MenuBook({ pages }: { pages?: string[] }) {
           </div>
         )}
         <div
-          onClick={() => openViewer(0)}
+          onClick={() => openViewer(menuPageUrls, 0)}
           className="relative rounded-md border-[6px] border-[#ffffdc] shadow-2xl cursor-pointer hover:brightness-105 transition overflow-hidden"
           style={{ transform: "rotate(2.5deg)", zIndex: 1 }}
         >
@@ -44,60 +113,101 @@ function MenuBook({ pages }: { pages?: string[] }) {
         </div>
       </div>
 
-      {/* Lightbox viewer */}
+      {/* ── Mobile: swipeable tri-fold, one panel at a time ── */}
+      <div className="sm:hidden">
+        <div
+          ref={trackRef}
+          onScroll={onTrackScroll}
+          className="flex overflow-x-auto snap-x snap-mandatory scrollbar-hide -mx-6 px-6 pt-2 pb-12"
+        >
+          {foldPages.map((src, i) => (
+            <div
+              key={src}
+              className={`snap-center shrink-0 w-[82%] ${i < foldPages.length - 1 ? "border-r-2 border-dashed border-[#13322b]/75" : ""}`}
+            >
+              <div
+                onClick={() => {
+                  // open the tapped side first, so the other side is one swipe-left away
+                  const spread = foldToSpread[i];
+                  const ordered =
+                    menuPageUrls.length > 1
+                      ? [menuPageUrls[spread], ...menuPageUrls.filter((_, idx) => idx !== spread)]
+                      : menuPageUrls;
+                  openViewer(ordered, 0);
+                }}
+                className="overflow-hidden cursor-pointer active:brightness-105 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.5)]"
+              >
+                <Image src={src} alt={`Elio's menu panel ${i + 1}`} width={933} height={1974} sizes="82vw" className="block w-full h-auto" />
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* dots */}
+        <div className="flex justify-center gap-2 mt-2">
+          {foldPages.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => goTo(i)}
+              aria-label={`Go to menu panel ${i + 1}`}
+              className={`h-2.5 rounded-full transition-all duration-300 ${
+                current === i
+                  ? "w-6 bg-[#FFFFDC] shadow-[0px_2px_6px_2px_rgba(0,0,0,0.15)]"
+                  : "w-2.5 bg-[#102a23] shadow-[inset_0_2px_3px_rgba(0,0,0,0.15),inset_0_2px_9px_3px_rgba(0,0,0,0.15)]"
+              }`}
+            />
+          ))}
+        </div>
+      </div>
+
+      {/* Full-page viewer — swipe to page, pinch to zoom, tap outside to close */}
       {open && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
-          className="fixed inset-0 z-[99999] bg-black/85 backdrop-blur-sm flex items-center justify-center"
+          className="fixed inset-0 z-[99999] bg-black/90 backdrop-blur-sm"
           onClick={() => setOpen(false)}
         >
-          <motion.div
-            initial={{ scale: 0.85, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            transition={{ type: "spring", stiffness: 300, damping: 25 }}
-            className="relative max-w-[90vw] max-h-[90vh] overflow-auto cursor-default"
-            onClick={(e) => e.stopPropagation()}
+          <div
+            ref={viewerRef}
+            onScroll={onViewerScroll}
+            className="h-full w-full flex overflow-x-auto snap-x snap-mandatory scrollbar-hide"
+            style={{ touchAction: "pan-x pinch-zoom" }}
           >
-            {/* Controls */}
-            <div className="sticky top-3 z-10 flex justify-between items-center px-4">
-              {/* Page nav */}
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setActivePage((p) => Math.max(p - 1, 0))}
-                  disabled={activePage === 0}
-                  className="bg-white/90 text-black w-9 h-9 rounded-full text-lg font-bold shadow-md hover:bg-white transition disabled:opacity-30"
-                >
-                  ‹
-                </button>
-                <span className="bg-white/90 text-black px-3 h-9 rounded-full text-sm font-medium shadow-md flex items-center">
-                  {activePage + 1} / {menuPageUrls.length}
-                </span>
-                <button
-                  onClick={() => setActivePage((p) => Math.min(p + 1, menuPageUrls.length - 1))}
-                  disabled={activePage === menuPageUrls.length - 1}
-                  className="bg-white/90 text-black w-9 h-9 rounded-full text-lg font-bold shadow-md hover:bg-white transition disabled:opacity-30"
-                >
-                  ›
-                </button>
+            {viewerPages.map((src, i) => (
+              <div
+                key={src}
+                className="snap-center shrink-0 w-full h-full flex items-center justify-center p-4"
+                onClick={() => setOpen(false)}
+              >
+                <Image
+                  src={src}
+                  alt={`Elio's menu page ${i + 1}`}
+                  width={1546}
+                  height={1092}
+                  className="max-w-full max-h-full w-auto h-auto object-contain rounded-md"
+                  onClick={(e) => e.stopPropagation()}
+                />
               </div>
-              {/* Zoom + close */}
-              <div className="flex gap-2">
-                <button onClick={() => setScale((s) => Math.min(s + 0.25, 3))} className="bg-white/90 text-black w-9 h-9 rounded-full text-lg font-bold shadow-md hover:bg-white transition">+</button>
-                <button onClick={() => setScale((s) => Math.max(s - 0.25, 0.5))} className="bg-white/90 text-black w-9 h-9 rounded-full text-lg font-bold shadow-md hover:bg-white transition">−</button>
-                <button onClick={() => setOpen(false)} className="bg-white/90 text-black w-9 h-9 rounded-full text-lg font-bold shadow-md hover:bg-white transition">✕</button>
-              </div>
+            ))}
+          </div>
+
+          {/* on-brand page dots */}
+          {viewerPages.length > 1 && (
+            <div className="absolute bottom-6 left-0 right-0 flex justify-center gap-2">
+              {viewerPages.map((_, i) => (
+                <button
+                  key={i}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    goToViewer(i);
+                  }}
+                  aria-label={`Go to menu page ${i + 1}`}
+                  className={`h-2 rounded-full transition-all duration-300 ${viewerCurrent === i ? "w-6 bg-[#ffffdc]" : "w-2 bg-[#ffffdc]/40"}`}
+                />
+              ))}
             </div>
-            <div style={{ transform: `scale(${scale})`, transformOrigin: "top center", transition: "transform 0.2s ease" }}>
-              <Image
-                src={menuPageUrls[activePage]}
-                alt={`Elio's menu page ${activePage + 1}`}
-                width={1546}
-                height={1092}
-                className="w-full h-auto rounded-md mt-3"
-              />
-            </div>
-          </motion.div>
+          )}
         </motion.div>
       )}
     </>
@@ -285,7 +395,7 @@ const stickerLayout: {
   { src: "sticker-3", w: 438, rot: 0, top: "calc(35% + 110px)", right: "calc(-2% - 10px)", delay: 0.15, pop: "right" },
   { src: "sticker-4", w: 311, rot: 0, top: "5%", right: "calc(2% + 200px)", delay: 0.12, pop: "right", hideOnMobile: true },
   { src: "sticker-cannoli", w: 294, rot: 0, top: "calc(8% - 100px)", left: "35%", delay: 0.3, pop: "scale", topClass: "top-[calc(8%-60px)] sm:top-[calc(8%-100px)]" },
-  { src: "sticker-iced-coffee", w: 343, rot: 0, top: "calc(4% + 500px)", right: "calc(0% + 140px)", delay: 0.22, pop: "right", outlined: true },
+  { src: "sticker-iced-coffee", w: 343, rot: 0, top: "calc(4% + 500px)", right: "calc(0% + 140px)", delay: 0.22, pop: "right" },
   { src: "sticker-12", w: 240, rot: -18, top: "35%", left: "-2%", delay: 0.2, pop: "left" },
   { src: "sticker-6", w: 408, rot: 0, top: "calc(11% + 20px)", right: "0%", delay: 0.25, pop: "right" },
   { src: "sticker-10", w: 380, rot: 0, top: "56%", left: "calc(25% + 10px)", delay: 0.35, pop: "scale" },
@@ -297,7 +407,7 @@ const stickerLayout: {
   { src: "sticker-cocoa", w: 312, rot: -3, top: "calc(70% - 115px)", left: "0%", delay: 0.42, pop: "left", flip: true },
   { src: "sticker-logo-badge", w: 160, rot: 12, top: "8%", right: "15%", delay: 0.2, pop: "right" },
   { src: "sticker-5", w: 280, rot: -8, top: "calc(15% + 650px)", right: "5%", delay: 0.25, pop: "right", topClass: "top-[calc(15%+610px)] sm:top-[calc(15%+650px)]" },
-  { src: "sticker-chefs", w: 300, rot: 3, top: "calc(5% + 40px)", left: "calc(18% - 90px)", delay: 0.35, pop: "left" },
+  { src: "sticker-takeaway-cup", w: 200, rot: -6, top: "calc(5% + 50px)", left: "calc(18% - 40px)", delay: 0.35, pop: "left" },
 ];
 
 /* ── About video polaroid (Elio video, deferred until in view) ── */
@@ -592,7 +702,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         className="hidden sm:block absolute pointer-events-none z-[1]"
         style={{ right: "calc(5% - 60px)", top: "calc(15% + 355px)", width: "clamp(96px, 11vw, 160px)" }}
       >
-        <Image src="/images/sticker-tomato-can.png" alt="" width={162} height={162} sizes="162px" className="w-full h-auto sticker-outlined -rotate-5" />
+        <Image src="/images/sticker-tomato-can.png" alt="" width={162} height={162} sizes="162px" className="w-full h-auto sticker-shadow -rotate-5" />
       </motion.div>
 
 
@@ -605,7 +715,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         className="hidden sm:block absolute left-[3%] bottom-[5%] pointer-events-none z-[100]"
         style={{ width: "clamp(192px, 22vw, 336px)" }}
       >
-        <Image src="/images/sticker-piadina-v2.png" alt="" width={336} height={336} sizes="336px" className="w-full h-auto sticker-outlined" />
+        <Image src="/images/sticker-piadina-v2.png" alt="" width={336} height={336} sizes="336px" className="w-full h-auto sticker-shadow" />
       </motion.div>
 
       {/* Panini + iced coffee sticker */}
