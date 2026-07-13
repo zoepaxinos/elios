@@ -135,7 +135,7 @@ function MenuBook({ pages }: { pages?: string[] }) {
                       : menuPageUrls;
                   openViewer(ordered, 0);
                 }}
-                className="overflow-hidden cursor-pointer active:brightness-105 shadow-[0_12px_24px_-8px_rgba(0,0,0,0.5)]"
+                className="overflow-hidden cursor-pointer active:brightness-105 shadow-[0_8px_18px_-10px_rgba(0,0,0,0.3)]"
               >
                 <Image src={src} alt={`Elio's menu panel ${i + 1}`} width={933} height={1974} sizes="82vw" className="block w-full h-auto" />
               </div>
@@ -429,7 +429,7 @@ function AboutVideoPolaroid() {
       viewport={{ once: true }}
       onViewportEnter={() => setInView(true)}
       transition={{ duration: 0.35, delay: 0.15 }}
-      className="absolute left-[40%] top-[50%] w-[46%] rotate-3 drop-shadow-2xl"
+      className="absolute left-[40%] top-[50%] w-[41%] rotate-3 drop-shadow-2xl"
     >
       <div className="bg-[#fffef8] p-[5%] pb-[16%] shadow-xl">
         <div className="aspect-square overflow-hidden">
@@ -603,7 +603,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           getNextZ={getNextZ}
           popFrom={s.pop}
           className={`${s.hideOnMobile ? "hidden sm:block" : ""} ${s.topClass ?? ""}`}
-          style={{ top: s.topClass ? undefined : s.top, left: s.left, right: s.right, width: `clamp(${Math.round(s.w * 0.35)}px, ${s.w / 13}vw, ${s.w}px)` }}
+          style={{ top: s.topClass ? undefined : s.top, left: s.left, right: s.right, width: `clamp(${Math.round(s.w * 0.35 * 1.05)}px, ${(s.w / 13) * 1.05}vw, ${s.w}px)` }}
         >
           <Image src={`/images/${s.src}.png`} alt="" width={s.w} height={s.w} sizes={`${s.w}px`} className={`w-full h-auto ${s.outlined ? "sticker-outlined" : "sticker-shadow"} ${s.flip ? "scale-x-[-1]" : ""}`} draggable={false} />
         </Draggable>
@@ -616,7 +616,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         animate={{ scale: 1, opacity: 1 }}
         transition={{ ...pop, delay: 0.25 }}
         className="absolute z-[9999] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        style={{ top: "45%", width: "clamp(200px, 24vw, 360px)" }}
+        style={{ top: "45%", width: "clamp(190px, 22.8vw, 342px)" }}
       >
         <Image src="/images/elios-hero-logo-new.png" alt="Elio's Panino Italiano" width={1000} height={520} className="w-full h-auto" priority />
       </motion.div>
