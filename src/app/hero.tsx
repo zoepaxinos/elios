@@ -139,7 +139,7 @@ function MenuBook({ pages }: { pages?: string[] }) {
                 className="overflow-hidden cursor-pointer active:brightness-105"
                 style={{ boxShadow: "0 2px 12.8px 0 rgba(0,0,0,0.06), 0 1px 6px 1.5px rgba(0,0,0,0.08)" }}
               >
-                <Image src={src} alt={`Elio's menu panel ${i + 1}`} width={933} height={1974} sizes="66vw" className="block w-full h-auto" />
+                <Image src={src} alt={`Elio's menu panel ${i + 1}`} width={933} height={1974} sizes="66vw" className={`block w-full h-auto ${i === 0 || i === foldPages.length - 1 ? "brightness-110" : ""}`} />
               </div>
             </div>
           ))}
@@ -414,12 +414,12 @@ const stickerLayout: {
 
 /* ── Mobile hero sticker spine (under sm only) — vertical cascade down the right edge ── */
 const mobileSpine: { src: string; w: number; rot: number; right: number; dy?: number; outlined?: boolean }[] = [
-  { src: "sticker-cannoli", w: 150, rot: 8, right: 78 },
-  { src: "sticker-16", w: 170, rot: -5, right: -6 },
-  { src: "sticker-6", w: 163, rot: 7, right: -16 },
-  { src: "sticker-moka", w: 106, rot: -6, right: 60 },
-  { src: "sticker-takeaway-cup", w: 114, rot: 6, right: 186 },
-  { src: "sticker-5", w: 126, rot: -5, right: -4, dy: -20 },
+  { src: "sticker-cannoli", w: 180, rot: 8, right: 78, dy: 10 },
+  { src: "sticker-16", w: 170, rot: -5, right: -6, dy: -40 },
+  { src: "sticker-6", w: 163, rot: 7, right: -16, dy: -40 },
+  { src: "sticker-moka", w: 106, rot: -6, right: 60, dy: -40 },
+  { src: "sticker-takeaway-cup", w: 114, rot: 6, right: 186, dy: -40 },
+  { src: "sticker-5", w: 126, rot: -5, right: -4, dy: -120 },
 ];
 
 /* ── About video polaroid (Elio video) ── */
@@ -684,7 +684,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         animate={{ scale: 1, opacity: 1 }}
         transition={{ ...pop, delay: 0.25 }}
         className="hidden sm:block absolute z-[9999] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        style={{ top: "45%", width: "360px" }}
+        style={{ top: "45%", width: "clamp(190px, 22.8vw, 342px)" }}
       >
         <Image src="/images/elios-hero-logo-new.png" alt="Elio's Panino Italiano" width={1000} height={520} className="w-full h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
       </motion.div>
@@ -692,13 +692,13 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
       {/* Mobile hero — asymmetric: left text column + right sticker spine */}
       <div className="sm:hidden absolute inset-0 flex">
         {/* Left text column */}
-        <div className="w-[64%] flex flex-col justify-center items-start pl-7 pr-2">
+        <div className="w-[64%] shrink-0 flex flex-col justify-center items-start pl-7 pr-2">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
           >
-            <Image src="/images/elios-wordmark.png" alt="Elio's" width={3225} height={922} className="w-[200px] max-w-full h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
+            <Image src="/images/elios-wordmark.png" alt="Elio's" width={3225} height={922} className="w-[200px] h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
             <p
               className="mt-2.5 uppercase"
               style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", fontSize: "14px", letterSpacing: "0.1em", color: "#FFFFDC" }}
@@ -719,7 +719,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         </div>
 
         {/* Right sticker spine */}
-        <div className="flex-1 flex flex-col items-end justify-evenly py-2 pointer-events-none">
+        <div className="flex-1 min-w-0 flex flex-col items-end justify-evenly py-2 pointer-events-none">
           {mobileSpine.map((s, i) => (
             <motion.div
               key={s.src}
@@ -759,7 +759,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="flex-shrink-0 w-full md:w-[52%]"
         >
-          <div className="relative w-full aspect-[13/14] text-[#FFFFDC]" style={{ fontFamily: "var(--font-caveat)" }}>
+          <div className="relative w-full aspect-[13/14] text-[#FFFFDC] scale-[1.15]" style={{ fontFamily: "var(--font-caveat)" }}>
             {/* Polaroid 1 — Pete's dad (B&W) */}
             <Image src="/images/polaroid-founders.png" alt="Pete's dad" width={1521} height={1518} sizes="(max-width: 768px) 42vw, 24vw" className="absolute left-[6%] top-[8%] w-[40%] h-auto drop-shadow-xl -rotate-3" />
             {/* Polaroid 2 — the family */}
@@ -948,10 +948,18 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.35, delay: 0.2 }}
-            className="flex flex-wrap items-end gap-4 sm:gap-6 mt-[18px]"
+            className="mt-[18px]"
           >
-            <Image src="/images/sticker-cup.png" alt="" width={180} height={180} sizes="170px" className="h-auto sticker-shadow" style={{ width: "clamp(110px, 16vw, 170px)" }} />
-            <Image src="/images/panini-receipts.png" alt="" width={1260} height={1620} sizes="340px" className="h-auto sticker-shadow" style={{ width: "clamp(280px, 40vw, 340px)" }} />
+            {/* Mobile: cup nestled in the panini-with-receipts bottom-right corner (panini 8% smaller) */}
+            <div className="relative inline-block sm:hidden">
+              <Image src="/images/panini-receipts.png" alt="" width={1260} height={1620} sizes="260px" className="block h-auto sticker-shadow" style={{ width: "clamp(258px, 37vw, 313px)" }} />
+              <Image src="/images/sticker-cup.png" alt="" width={180} height={180} sizes="110px" className="absolute bottom-0 right-0 h-auto sticker-shadow" style={{ width: "clamp(96px, 28vw, 120px)" }} />
+            </div>
+            {/* Desktop: cup + panini side by side */}
+            <div className="hidden sm:flex flex-wrap items-end gap-6">
+              <Image src="/images/sticker-cup.png" alt="" width={180} height={180} sizes="170px" className="h-auto sticker-shadow" style={{ width: "clamp(110px, 16vw, 170px)" }} />
+              <Image src="/images/panini-receipts.png" alt="" width={1260} height={1620} sizes="340px" className="h-auto sticker-shadow" style={{ width: "clamp(280px, 40vw, 340px)" }} />
+            </div>
           </motion.div>
         </div>
       </div>
