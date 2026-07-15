@@ -9,6 +9,7 @@ import { resolve } from "./src/sanity/presentation/resolve";
 export default defineConfig({
   name: "elios",
   title: "Elio's Cafe",
+  basePath: "/studio",
   projectId,
   dataset,
   plugins: [

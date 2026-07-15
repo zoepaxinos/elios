@@ -145,3 +145,12 @@ body {
   color: white;
 }
 
+/* Hide scrollbar (mobile menu carousel) while keeping scroll/swipe */
+.scrollbar-hide {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
