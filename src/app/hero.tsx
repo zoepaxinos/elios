@@ -418,6 +418,7 @@ const mobileSpine: { src: string; w: number; rot: number; right: number; dy?: nu
   { src: "sticker-16", w: 170, rot: -5, right: -6, dy: -40 },
   { src: "sticker-6", w: 163, rot: 7, right: -16, dy: -40 },
   { src: "sticker-moka", w: 106, rot: -6, right: 60, dy: -40 },
+  { src: "sticker-cocoa", w: 118, rot: 6, right: -10, dy: -40 },
   { src: "sticker-takeaway-cup", w: 114, rot: 6, right: 186, dy: -40 },
   { src: "sticker-5", w: 126, rot: -5, right: -4, dy: -120 },
 ];
