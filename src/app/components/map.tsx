@@ -48,7 +48,7 @@ function MapInner() {
           .setPopup(
             new mapboxgl.Popup({ offset: 25 }).setHTML(
               `<div style="font-family:Futura,'Trebuchet MS',sans-serif;padding:8px 12px;background:#13322b;color:#ffffdc;border-radius:8px;">
-                <strong style="font-size:15px;display:block;margin-bottom:4px;">Elio's Panino Italiano</strong>
+                <strong style="font-size:15px;display:block;margin-bottom:4px;">Elio's</strong>
                 <span style="font-size:12px;opacity:0.8;line-height:1.4;">70 Newlands Road<br/>Coburg North, VIC 3058</span>
               </div>`
             )

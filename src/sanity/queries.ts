@@ -59,3 +59,8 @@ export const aboutSectionQuery = groq`*[_type == "aboutSection"][0]{
   body,
   image
 }`;
+
+export const instagramReelsQuery = groq`*[_type == "instagramReels"][0]{
+  heading,
+  reels[]{ url }
+}`;

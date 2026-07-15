@@ -6,5 +6,6 @@ import { announcement } from "./announcement";
 import { navigation } from "./navigation";
 import { aboutSection } from "./aboutSection";
 import { seoSettings } from "./seoSettings";
+import { instagramReels } from "./instagramReels";
 
-export const schemaTypes = [cafeInfo, menuCategory, menuItem, menuPage, announcement, navigation, aboutSection, seoSettings];
+export const schemaTypes = [cafeInfo, menuCategory, menuItem, menuPage, announcement, navigation, aboutSection, seoSettings, instagramReels];

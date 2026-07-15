@@ -109,8 +109,8 @@ function NavItem({ item, active }: { item: { label: string; href: string }; acti
     <a
       ref={ref}
       href={item.href}
-      className="relative text-[8px] sm:text-sm uppercase tracking-[0.04em] hover:text-[#eeece6] transition-colors"
-      style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", fontWeight: 300, color: "#FFFFDC" }}
+      className="relative text-[12px] uppercase tracking-[0.1em] hover:text-[#eeece6] transition-colors"
+      style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", fontWeight: 300, color: "#FFFFDC", textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}
     >
       <span className="relative z-10">{item.label}</span>
       {size.w > 0 && <SketchCircle w={size.w} h={size.h} seed={item.label} active={active} />}
@@ -145,7 +145,7 @@ export default function Nav({ items }: NavProps) {
   }, [navItems]);
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[10000] flex justify-center gap-[13px] sm:gap-[43px] px-4 pt-3 sm:pt-4">
+    <nav className="fixed top-0 left-0 right-0 z-[10000] flex justify-between sm:justify-center gap-0 sm:gap-[43px] px-5 sm:px-4 pt-3 sm:pt-4">
       {navItems.map((item) => (
         <NavItem key={item.label} item={item} active={activeId === item.href.replace(/^#/, "")} />
       ))}
