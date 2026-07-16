@@ -406,7 +406,7 @@ const stickerLayout: {
   { src: "sticker-7", w: 276, rot: -18, top: "80%", left: "0%", delay: 0.55, pop: "left" },
   { src: "sticker-moka", w: 221, rot: 8, top: "40%", right: "3%", delay: 0.18, pop: "right" },
   { src: "sticker-cup", w: 238, rot: 5, top: "calc(80% - 90px)", left: "50px", delay: 0.48, pop: "left" },
-  { src: "sticker-cocoa", w: 312, rot: -3, top: "calc(70% - 115px)", left: "0%", delay: 0.42, pop: "left", flip: true },
+  { src: "sticker-cocoa-v2", w: 312, rot: -3, top: "calc(70% - 115px)", left: "0%", delay: 0.42, pop: "left", flip: true },
   { src: "sticker-logo-badge", w: 160, rot: 12, top: "8%", right: "15%", delay: 0.2, pop: "right" },
   { src: "sticker-5", w: 280, rot: -8, top: "calc(15% + 650px)", right: "5%", delay: 0.25, pop: "right", topClass: "top-[calc(15%+610px)] sm:top-[calc(15%+650px)]" },
   { src: "sticker-takeaway-cup", w: 200, rot: -6, top: "calc(5% + 50px)", left: "calc(18% - 40px)", delay: 0.35, pop: "left" },
@@ -415,12 +415,11 @@ const stickerLayout: {
 /* ── Mobile hero sticker spine (under sm only) — vertical cascade down the right edge ── */
 const mobileSpine: { src: string; w: number; rot: number; right: number; dy?: number; outlined?: boolean }[] = [
   { src: "sticker-cannoli", w: 180, rot: 8, right: 78, dy: 10 },
-  { src: "sticker-16", w: 170, rot: -5, right: -6, dy: -40 },
-  { src: "sticker-6", w: 163, rot: 7, right: -16, dy: -40 },
-  { src: "sticker-moka", w: 106, rot: -6, right: 60, dy: -40 },
-  { src: "sticker-cocoa", w: 118, rot: 6, right: -10, dy: -40 },
-  { src: "sticker-takeaway-cup", w: 114, rot: 6, right: 186, dy: -40 },
-  { src: "sticker-5", w: 126, rot: -5, right: -4, dy: -120 },
+  { src: "sticker-16", w: 170, rot: -5, right: -6, dy: -140 },
+  { src: "sticker-6", w: 171, rot: 7, right: -16, dy: -90 },
+  { src: "sticker-moka", w: 122, rot: -6, right: 230, dy: 120 },
+  { src: "sticker-cocoa-v2", w: 136, rot: 6, right: -10, dy: -80 },
+  { src: "sticker-takeaway-cup", w: 114, rot: 6, right: 116, dy: -80 },
 ];
 
 /* ── About video polaroid (Elio video) ── */
@@ -693,7 +692,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
       {/* Mobile hero — asymmetric: left text column + right sticker spine */}
       <div className="sm:hidden absolute inset-0 flex">
         {/* Left text column */}
-        <div className="w-[64%] shrink-0 flex flex-col justify-center items-start pl-7 pr-2">
+        <div className="w-[64%] shrink-0 relative z-10 flex flex-col justify-center items-start pl-7 pr-2">
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
@@ -720,7 +719,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         </div>
 
         {/* Right sticker spine */}
-        <div className="flex-1 min-w-0 flex flex-col items-end justify-evenly py-2 pointer-events-none">
+        <div className="flex-1 min-w-0 relative z-10 flex flex-col items-end justify-evenly py-2 pointer-events-none">
           {mobileSpine.map((s, i) => (
             <motion.div
               key={s.src}
@@ -733,6 +732,16 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
             </motion.div>
           ))}
         </div>
+
+        {/* Standalone family polaroid — bottom-right */}
+        <motion.div
+          initial={{ opacity: 0, y: 12, rotate: -4 }}
+          animate={{ opacity: 1, y: 0, rotate: -4 }}
+          transition={{ ...pop, delay: 0.5 }}
+          className="absolute bottom-[76px] -right-[38px] w-[176px] drop-shadow-xl pointer-events-none z-0"
+        >
+          <Image src="/images/hero-polaroid.png" alt="" width={885} height={1020} sizes="168px" className="w-full h-auto" />
+        </motion.div>
       </div>
 
     </section>
@@ -999,7 +1008,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.35, delay: 0.1, ease: [0.22, 1, 0.36, 1] }}
-          className="grid grid-cols-1 sm:grid-cols-3 gap-12 sm:gap-16"
+          className="grid grid-cols-1 sm:grid-cols-3 gap-6 sm:gap-16"
         >
           {/* VISIT */}
           <div>
