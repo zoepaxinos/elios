@@ -714,7 +714,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
             style={{ fontFamily: "'Times New Roman', Times, serif", fontSize: "22.7px", lineHeight: 0.94, letterSpacing: "-0.045em", color: "#FFFFDC", textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}
           >
             Walk in a customer.<br />
-            <em className="italic">Leave a cousin.</em>
+            <em className="italic">Leave as family.</em>
           </motion.h1>
         </div>
 
