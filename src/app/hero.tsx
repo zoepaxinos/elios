@@ -124,7 +124,7 @@ function MenuBook({ pages }: { pages?: string[] }) {
           {foldPages.map((src, i) => (
             <div
               key={src}
-              className={`snap-center shrink-0 w-[66%] ${i < foldPages.length - 1 ? "border-r-2 border-dashed border-[#13322b]/75" : ""}`}
+              className={`snap-center shrink-0 w-[66%] ${i < foldPages.length - 1 ? "border-r-2 border-dashed " + (i === 0 ? "border-[#FFFFDC]/70" : "border-[#13322b]/75") : ""}`}
             >
               <div
                 onClick={() => {
