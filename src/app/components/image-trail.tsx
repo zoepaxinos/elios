@@ -1,13 +1,13 @@
 "use client";
 
 import { gsap } from "gsap";
-import { useEffect, useRef, type RefObject } from "react";
+import { useEffect, useRef, useState, type RefObject } from "react";
 
 /**
  * Adapted from ReactBits ImageTrail (variant 1).
  * https://reactbits.dev/animations/image-trail
  *
- * Three deliberate departures from upstream:
+ * Five deliberate departures from upstream:
  *
  * 1. Renders transparent <img> at native aspect instead of a cover-cropped
  *    `aspect-[1.1] rounded-[15px] overflow-hidden` box. Elio's stickers are
@@ -16,9 +16,15 @@ import { useEffect, useRef, type RefObject } from "react";
  * 2. Pointer listeners attach to a caller-supplied `surface` element, not to
  *    the trail container. A container that receives pointer events also
  *    swallows clicks on the nav layered above the hero.
- * 3. Real teardown. Upstream never removes listeners and never cancels its
- *    requestAnimationFrame loop, so React StrictMode (on by default in the App
- *    Router) leaves two live engines running in development.
+ * 3. Real teardown. Upstream never removes listeners, never cancels its
+ *    requestAnimationFrame loop and never kills its timelines, so React
+ *    StrictMode (on by default in the App Router) leaves two live engines
+ *    running in development.
+ * 4. The item markup is gated on a React state flag rather than always
+ *    rendered. Reduced-motion users and sub-640px viewports never see the
+ *    trail, so they should not pay for 14 image requests either.
+ * 5. The container rect is cached rather than measured per pointer event, and
+ *    the rAF loop stops when nothing is animating and the cursor has settled.
  */
 
 export type TrailItem = {
@@ -42,6 +48,13 @@ const TRAIL_IMG_OPTIMISED_WIDTH = 384;
 const SPAWN_THRESHOLD = 80;
 /** Tailwind `sm` breakpoint. Below this the trail does not run at all. */
 const DESKTOP_QUERY = "(min-width: 640px)";
+/** Users who ask for less motion get none of this. */
+const REDUCED_MOTION_QUERY = "(prefers-reduced-motion: reduce)";
+/**
+ * Sub-pixel threshold at which the eased cursor is treated as having caught up
+ * with the real cursor. The lerp is asymptotic, so it never converges exactly.
+ */
+const SETTLE_EPSILON = 0.1;
 
 /**
  * Route through Next's image optimiser. The trail uses raw <img> (GSAP drives
@@ -87,7 +100,12 @@ class TrailImage {
   destroy() {
     window.removeEventListener("resize", this.onResize);
     gsap.killTweensOf(this.el);
-    gsap.set(this.el, { clearProps: "all" });
+    /* Clear only what this engine set. `clearProps: "all"` is implemented by
+       GSAP's CSSPlugin as `style.cssText = ""`, which would also wipe the
+       width and aspect-ratio React wrote inline - the wrapper's only sizing.
+       React does not re-render on teardown, so those never come back and every
+       subsequent spawn is measured at 0x0. */
+    gsap.set(this.el, { clearProps: "transform,opacity,zIndex" });
   }
 }
 
@@ -96,37 +114,75 @@ class ImageTrailEngine {
   private container: HTMLElement;
   private surface: HTMLElement;
   private images: TrailImage[];
+  private timelines = new Set<gsap.core.Timeline>();
   private imgPosition = 0;
   private zIndexVal = 1;
   private activeImagesCount = 0;
   private isIdle = true;
+  private hasPointer = false;
   private mousePos = { x: 0, y: 0 };
   private lastMousePos = { x: 0, y: 0 };
   private cacheMousePos = { x: 0, y: 0 };
+  /**
+   * Cached container rect. Measuring inside the pointer handler forces a
+   * synchronous layout on every mousemove while GSAP is mutating transforms on
+   * up to 14 `will-change` layers. The rect is viewport-relative and the hero
+   * scrolls, so it is refreshed on both resize and scroll.
+   */
+  private rect: DOMRect;
+  /** Non-null exactly while a rAF loop is scheduled. Doubles as the "loop is running" flag. */
   private rafId: number | null = null;
+  private tick: () => void;
   private handlePointerMove: (ev: MouseEvent) => void;
-  private initRender: (ev: MouseEvent) => void;
+  private measure: () => void;
 
   constructor(container: HTMLElement, surface: HTMLElement) {
     this.container = container;
     this.surface = surface;
+    this.rect = container.getBoundingClientRect();
     this.images = Array.from(
       container.querySelectorAll<HTMLDivElement>(".content__img"),
     ).map((el) => new TrailImage(el));
 
-    this.handlePointerMove = (ev: MouseEvent) => {
-      this.mousePos = getLocalPointerPos(ev, this.container.getBoundingClientRect());
+    this.tick = () => this.render();
+
+    this.measure = () => {
+      this.rect = this.container.getBoundingClientRect();
     };
 
-    this.initRender = (ev: MouseEvent) => {
-      this.mousePos = getLocalPointerPos(ev, this.container.getBoundingClientRect());
-      this.cacheMousePos = { ...this.mousePos };
-      this.rafId = requestAnimationFrame(() => this.render());
-      this.surface.removeEventListener("mousemove", this.initRender);
+    this.handlePointerMove = (ev: MouseEvent) => {
+      this.mousePos = getLocalPointerPos(ev, this.rect);
+      if (!this.hasPointer) {
+        // First sighting of the cursor: start the eased position on top of it,
+        // otherwise the first sticker flies in from the container origin.
+        this.hasPointer = true;
+        this.cacheMousePos = { ...this.mousePos };
+      }
+      this.startLoop();
     };
 
     this.surface.addEventListener("mousemove", this.handlePointerMove);
-    this.surface.addEventListener("mousemove", this.initRender);
+    window.addEventListener("resize", this.measure, { passive: true });
+    window.addEventListener("scroll", this.measure, { passive: true });
+  }
+
+  /**
+   * Schedule the loop if it is not already scheduled. `rafId` is the single
+   * source of truth: it is non-null from the moment a frame is requested until
+   * render() decides to idle (or destroy() cancels), so two concurrent loops
+   * cannot exist no matter how many pointer events arrive.
+   */
+  private startLoop() {
+    if (this.rafId !== null) return;
+    this.rafId = requestAnimationFrame(this.tick);
+  }
+
+  /** True once the eased cursor has effectively caught up with the real one. */
+  private hasSettled(): boolean {
+    return (
+      Math.abs(this.cacheMousePos.x - this.mousePos.x) < SETTLE_EPSILON &&
+      Math.abs(this.cacheMousePos.y - this.mousePos.y) < SETTLE_EPSILON
+    );
   }
 
   private render() {
@@ -141,7 +197,20 @@ class ImageTrailEngine {
     if (this.isIdle && this.zIndexVal !== 1) {
       this.zIndexVal = 1;
     }
-    this.rafId = requestAnimationFrame(() => this.render());
+
+    // Nothing is animating and the cursor has stopped: park the loop instead of
+    // burning a frame callback forever. handlePointerMove restarts it.
+    // `timelines.size` covers the gap between a timeline being created here and
+    // GSAP firing its onStart on the next tick, during which activeImagesCount
+    // is still 0. The set drains itself: killTweensOf() empties a recycled
+    // timeline, collapsing it to duration 0 so onComplete still fires.
+    if (this.activeImagesCount === 0 && this.timelines.size === 0 && this.hasSettled()) {
+      this.cacheMousePos = { ...this.mousePos };
+      this.rafId = null;
+      return;
+    }
+
+    this.rafId = requestAnimationFrame(this.tick);
   }
 
   private showNextImage() {
@@ -152,7 +221,7 @@ class ImageTrailEngine {
     const img = this.images[this.imgPosition];
 
     gsap.killTweensOf(img.el);
-    gsap
+    const tl = gsap
       .timeline({
         onStart: () => {
           this.activeImagesCount++;
@@ -161,6 +230,7 @@ class ImageTrailEngine {
         onComplete: () => {
           this.activeImagesCount--;
           if (this.activeImagesCount === 0) this.isIdle = true;
+          this.timelines.delete(tl);
         },
       })
       .fromTo(
@@ -181,15 +251,23 @@ class ImageTrailEngine {
         0,
       )
       .to(img.el, { duration: 0.4, ease: "power3", opacity: 0, scale: 0.2 }, 0.4);
+
+    // Retained so destroy() can kill them. killTweensOf() on the child elements
+    // does not stop the parent timeline, whose onStart/onComplete would keep
+    // firing against a destroyed engine for up to 0.8s.
+    this.timelines.add(tl);
   }
 
   destroy() {
     this.surface.removeEventListener("mousemove", this.handlePointerMove);
-    this.surface.removeEventListener("mousemove", this.initRender);
+    window.removeEventListener("resize", this.measure);
+    window.removeEventListener("scroll", this.measure);
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
     }
+    this.timelines.forEach((tl) => tl.kill());
+    this.timelines.clear();
     this.images.forEach((img) => img.destroy());
     this.images = [];
   }
@@ -203,28 +281,19 @@ export default function ImageTrail({
   surfaceRef: RefObject<HTMLElement | null>;
 }) {
   const containerRef = useRef<HTMLDivElement>(null);
+  /**
+   * Whether the trail should run at all. Held in state, not read inline during
+   * render, so the server and the first client render agree (no hydration
+   * mismatch) and so flipping it re-renders the markup.
+   */
+  const [enabled, setEnabled] = useState(false);
 
+  // Decide. Re-evaluated on media change, so resizing across the breakpoint or
+  // toggling the OS motion preference both starts and stops the trail.
   useEffect(() => {
-    const container = containerRef.current;
-    const surface = surfaceRef.current;
-    if (!container || !surface) return;
-
-    const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)");
+    const reducedMotion = window.matchMedia(REDUCED_MOTION_QUERY);
     const desktop = window.matchMedia(DESKTOP_QUERY);
-
-    let engine: ImageTrailEngine | null = null;
-
-    // Re-evaluated on media change so resizing across the breakpoint, or
-    // toggling the OS motion preference, starts or stops the engine cleanly.
-    const sync = () => {
-      const shouldRun = !reducedMotion.matches && desktop.matches;
-      if (shouldRun && !engine) {
-        engine = new ImageTrailEngine(container, surface);
-      } else if (!shouldRun && engine) {
-        engine.destroy();
-        engine = null;
-      }
-    };
+    const sync = () => setEnabled(!reducedMotion.matches && desktop.matches);
 
     sync();
     reducedMotion.addEventListener("change", sync);
@@ -233,10 +302,29 @@ export default function ImageTrail({
     return () => {
       reducedMotion.removeEventListener("change", sync);
       desktop.removeEventListener("change", sync);
-      engine?.destroy();
-      engine = null;
     };
-  }, [items, surfaceRef]);
+  }, []);
+
+  /**
+   * Run. Separate from the effect above and gated on `enabled` so ordering is
+   * guaranteed by React itself: the engine queries `.content__img` in its
+   * constructor, and this effect only executes for a render in which `enabled`
+   * was already true - i.e. after React has committed those item divs to the
+   * DOM. It can never observe zero elements.
+   *
+   * Exactly one engine exists at a time: the effect constructs one and its
+   * cleanup destroys it, so any dependency change (or unmount, or StrictMode's
+   * double invoke) tears the old one down before the next is built.
+   */
+  useEffect(() => {
+    if (!enabled) return;
+    const container = containerRef.current;
+    const surface = surfaceRef.current;
+    if (!container || !surface) return;
+
+    const engine = new ImageTrailEngine(container, surface);
+    return () => engine.destroy();
+  }, [enabled, items, surfaceRef]);
 
   return (
     <div
@@ -244,29 +332,30 @@ export default function ImageTrail({
       data-testid="image-trail"
       className="w-full h-full relative overflow-visible pointer-events-none"
     >
-      {items.map((item) => (
-        <div
-          key={item.src}
-          className="content__img absolute top-0 left-0 opacity-0 [will-change:transform,opacity]"
-          style={{
-            width: TRAIL_IMG_WIDTH,
-            aspectRatio: `${item.width} / ${item.height}`,
-          }}
-        >
-          {/* eslint-disable-next-line @next/next/no-img-element -- GSAP drives
-              these nodes directly; next/image's wrapper markup and lazy
-              behaviour conflict with that. Optimisation is preserved by
-              routing through /_next/image in optimisedSrc(). */}
-          <img
-            src={optimisedSrc(item.src)}
-            alt=""
-            width={item.width}
-            height={item.height}
-            className="w-full h-full sticker-shadow"
-            draggable={false}
-          />
-        </div>
-      ))}
+      {enabled &&
+        items.map((item) => (
+          <div
+            key={item.src}
+            className="content__img absolute top-0 left-0 opacity-0 [will-change:transform,opacity]"
+            style={{
+              width: TRAIL_IMG_WIDTH,
+              aspectRatio: `${item.width} / ${item.height}`,
+            }}
+          >
+            {/* eslint-disable-next-line @next/next/no-img-element -- GSAP drives
+                these nodes directly; next/image's wrapper markup and lazy
+                behaviour conflict with that. Optimisation is preserved by
+                routing through /_next/image in optimisedSrc(). */}
+            <img
+              src={optimisedSrc(item.src)}
+              alt=""
+              width={item.width}
+              height={item.height}
+              className="w-full h-full sticker-shadow"
+              draggable={false}
+            />
+          </div>
+        ))}
     </div>
   );
 }
