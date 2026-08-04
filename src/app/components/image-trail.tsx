@@ -38,6 +38,21 @@ export type TrailItem = {
    */
   width: number;
   height: number;
+  /**
+   * Optional size multiplier against TRAIL_IMG_WIDTH. Defaults to 1. Use it to
+   * bring an outsized or visually heavy sticker into line with the rest —
+   * e.g. 0.6 renders it 40% smaller. The aspect-ratio box scales with it, so
+   * measured height stays correct and spawns stay centred.
+   */
+  scale?: number;
+  /**
+   * Optional static tilt in degrees. Applied to the inner <img>, not the
+   * wrapper — GSAP owns the wrapper's transform (x/y/scale), so rotating it
+   * there would be overwritten on every spawn. Rotating the child sidesteps
+   * that entirely. Centring still uses the wrapper's unrotated box, which
+   * keeps spawn positioning consistent with untilted stickers.
+   */
+  rotate?: number;
 };
 
 /** Rendered width of a trail image, in CSS px. */
@@ -338,7 +353,7 @@ export default function ImageTrail({
             key={item.src}
             className="content__img absolute top-0 left-0 opacity-0 [will-change:transform,opacity]"
             style={{
-              width: TRAIL_IMG_WIDTH,
+              width: TRAIL_IMG_WIDTH * (item.scale ?? 1),
               aspectRatio: `${item.width} / ${item.height}`,
             }}
           >
@@ -353,6 +368,7 @@ export default function ImageTrail({
               height={item.height}
               className="w-full h-full sticker-shadow"
               draggable={false}
+              style={item.rotate ? { transform: `rotate(${item.rotate}deg)` } : undefined}
             />
           </div>
         ))}

@@ -416,8 +416,8 @@ function InteractivePolaroid({
    the cursor. Intrinsic width/height are required by ImageTrail so each
    wrapper can carry a correct aspect-ratio before the image loads. */
 const heroTrailItems: TrailItem[] = [
-  { src: "/images/sticker-3.png", width: 1134, height: 758 },
-  { src: "/images/sticker-cannoli.png", width: 912, height: 1152 },
+  { src: "/images/sticker-3.png", width: 1134, height: 758, scale: 1.1 },
+  { src: "/images/sticker-cannoli.png", width: 912, height: 1152, scale: 1.1 },
   { src: "/images/sticker-iced-coffee.png", width: 624, height: 932 },
   { src: "/images/sticker-12.png", width: 766, height: 838 },
   { src: "/images/sticker-6.png", width: 790, height: 710 },
@@ -430,6 +430,9 @@ const heroTrailItems: TrailItem[] = [
   { src: "/images/sticker-logo-badge.png", width: 492, height: 426 },
   { src: "/images/sticker-5.png", width: 1364, height: 1364 },
   { src: "/images/sticker-takeaway-cup.png", width: 1673, height: 1964 },
+  { src: "/images/sticker-card.png", width: 613, height: 910, scale: 0.6, rotate: 34 },
+  { src: "/images/sticker-piadina-v2.png", width: 1140, height: 892 },
+  { src: "/images/sticker-tomato-single.png", width: 1024, height: 1024 },
 ];
 
 /* ── Mobile hero sticker spine (under sm only) — vertical cascade down the right edge ── */
@@ -450,7 +453,7 @@ function AboutVideoPolaroid() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.35, delay: 0.15 }}
-      className="absolute left-[40%] top-[50%] w-[32%] rotate-3 drop-shadow-2xl"
+      className="absolute left-[calc(40%+50px)] top-[50%] w-[32%] rotate-3 drop-shadow-2xl"
     >
       <div className="relative">
         <Image src="/images/polaroid-elio.png" alt="Pete's son Elio" width={795} height={946} className="block w-full h-auto" />
@@ -686,8 +689,11 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
       <Nav items={navigation?.items} />
 
       {/* Sticker image trail (desktop only) — replaces the former static collage.
-         z-[10] sits above the background but below the logo (z-9999) and nav (z-10000). */}
-      <div className="hidden sm:block absolute inset-0 z-[10] pointer-events-none">
+         Layering is deliberate and explicit rather than DOM-order dependent:
+         nav z-10000 > trail z-9999 > logo and byline z-9998. The trail sweeps
+         over the logo, but stays under the nav so navigation remains usable.
+         The wrapper is pointer-events-none, so it never intercepts clicks. */}
+      <div className="hidden sm:block absolute inset-0 z-[9999] pointer-events-none">
         <ImageTrail items={heroTrailItems} surfaceRef={heroRef} />
       </div>
 
@@ -697,7 +703,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ ...pop, delay: 0.25 }}
-        className="hidden sm:block absolute z-[9999] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        className="hidden sm:block absolute z-[9998] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         style={{ top: "45%", width: "clamp(190px, 22.8vw, 342px)" }}
       >
         <Image src="/images/elios-hero-logo-new.png" alt="Elio's Panino Italiano" width={1000} height={520} className="w-full h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
@@ -710,7 +716,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         initial={{ opacity: 0, y: 10 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden sm:block absolute z-[9999] left-1/2 -translate-x-1/2 text-center whitespace-nowrap pointer-events-none"
+        className="hidden sm:block absolute z-[9998] left-1/2 -translate-x-1/2 text-center whitespace-nowrap pointer-events-none"
         style={{
           top: "calc(45% + clamp(70px, calc(5.93vw + 22px), 111px))",
           fontFamily: "var(--font-work-sans), sans-serif",
@@ -784,18 +790,6 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
 
     {/* About section */}
     <section className="relative text-white px-6 sm:px-10 py-20 sm:py-32 " id="about" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
-      {/* Card sticker */}
-      <motion.div
-        initial={{ opacity: 0, rotate: 15 }}
-        whileInView={{ opacity: 1, rotate: 8 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.35, delay: 0.3 }}
-        className="hidden sm:block absolute left-[3%] top-[5%] pointer-events-none"
-        style={{ width: "clamp(80px, 10vw, 140px)" }}
-      >
-        <Image src="/images/sticker-card.png" alt="" width={140} height={200} sizes="140px" className="w-full h-auto sticker-shadow" />
-      </motion.div>
-
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-12">
         {/* About graphic — three-generation polaroid composition */}
         <motion.div
@@ -815,7 +809,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
 
             {/* Dashed arrows */}
             <img src="/images/arrow-dad.svg" alt="" aria-hidden="true" className="absolute left-[calc(36%-50px)] top-[calc(6%-20px)] w-[48%] pointer-events-none" />
-            <img src="/images/arrow-elio.svg" alt="" aria-hidden="true" className="absolute left-[60%] top-[calc(37%-20px)] w-[27%] pointer-events-none" />
+            <img src="/images/arrow-elio.svg" alt="" aria-hidden="true" className="absolute left-[calc(60%+50px)] top-[calc(37%-20px)] w-[27%] pointer-events-none" />
             <img src="/images/arrow-pete.svg" alt="" aria-hidden="true" className="absolute left-[1%] top-[52%] w-[47%] pointer-events-none" />
           </div>
         </motion.div>
