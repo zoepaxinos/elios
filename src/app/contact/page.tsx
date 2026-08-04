@@ -73,22 +73,22 @@ export default function ContactPage() {
           </p>
           <div
             className="grid grid-cols-1 sm:grid-cols-3 gap-10 sm:gap-16"
-            style={{ fontFamily: "'Times New Roman', Times, serif" }}
+            style={{ fontFamily: "var(--font-work-sans), sans-serif" }}
           >
             <div>
-              <p className="text-[#eeece6] text-2xl leading-relaxed">70 Newlands Road</p>
-              <p className="text-[#eeece6] text-2xl leading-relaxed">Coburg North, 3058</p>
-              <p className="text-[#eeece6] text-2xl leading-relaxed">Melbourne</p>
+              <p className="text-[#eeece6] text-[16px] leading-[30px]">70 Newlands Road</p>
+              <p className="text-[#eeece6] text-[16px] leading-[30px]">Coburg North, 3058</p>
+              <p className="text-[#eeece6] text-[16px] leading-[30px]">Melbourne</p>
             </div>
             <div>
-              <p className="text-[#eeece6] text-2xl leading-relaxed">elios.coburg</p>
-              <p className="text-[#eeece6] text-2xl leading-relaxed">(03) 9191 0107</p>
-              <a href="mailto:info@elioscoburg.com" className="block text-[#eeece6] text-2xl leading-relaxed hover:text-white transition-colors">info@elioscoburg.com</a>
+              <p className="text-[#eeece6] text-[16px] leading-[30px]">elios.coburg</p>
+              <p className="text-[#eeece6] text-[16px] leading-[30px]">(03) 9191 0107</p>
+              <a href="mailto:info@elioscoburg.com" className="block text-[#eeece6] text-[16px] leading-[30px] hover:text-white transition-colors">info@elioscoburg.com</a>
             </div>
             <div>
-              <p className="text-[#eeece6] text-2xl leading-relaxed">Monday – Friday 7am – 2:30pm</p>
-              <p className="text-[#eeece6] text-2xl leading-relaxed">Saturday 8am – 2:30pm</p>
-              <p className="text-[#eeece6] text-2xl leading-relaxed">Sunday 9am – 2:30pm</p>
+              <p className="text-[#eeece6] text-[16px] leading-[30px]">Monday – Friday 7am – 2:30pm</p>
+              <p className="text-[#eeece6] text-[16px] leading-[30px]">Saturday 8am – 2:30pm</p>
+              <p className="text-[#eeece6] text-[16px] leading-[30px]">Sunday 9am – 2:30pm</p>
             </div>
           </div>
           <div className="flex items-center gap-5 mt-8">

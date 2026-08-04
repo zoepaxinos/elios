@@ -5,8 +5,28 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import Nav from "./components/nav";
 import Map from "./components/map";
-import { PortableText } from "@portabletext/react";
+import { PortableText, type PortableTextComponents } from "@portabletext/react";
 import { urlFor } from "@/sanity/image";
+import ImageTrail, { type TrailItem } from "./components/image-trail";
+
+/* ── Portable Text ──
+   Editors press Enter twice in Studio, which Sanity stores as empty blocks.
+   Those render as zero-height <p></p> (Tailwind preflight zeroes p margins),
+   so drop them and let the paragraph margin below own the spacing instead. */
+function withoutBlankBlocks(blocks: unknown): any[] {
+  if (!Array.isArray(blocks)) return [];
+  return blocks.filter(
+    (b: any) =>
+      b?._type !== "block" ||
+      (b.children ?? []).some((c: any) => (c?.text ?? "").trim() !== ""),
+  );
+}
+
+const portableTextComponents: PortableTextComponents = {
+  block: {
+    normal: ({ children }) => <p className="mb-4 last:mb-0 text-pretty">{children}</p>,
+  },
+};
 
 /* ── Menu Book (side by side + lightbox with page nav) ── */
 const defaultMenuPages = ["/images/menu-2.png", "/images/menu-1.png"];
@@ -390,26 +410,29 @@ function InteractivePolaroid({
   );
 }
 
-/* ── Sticker positions ── */
-const stickerLayout: {
-  src: string; w: number; rot: number; top: string; left?: string; right?: string; delay: number; pop: "left" | "right" | "scale"; outlined?: boolean; hideOnMobile?: boolean; flip?: boolean; topClass?: string;
-}[] = [
-  { src: "sticker-3", w: 438, rot: 0, top: "calc(35% + 110px)", right: "calc(-2% - 10px)", delay: 0.15, pop: "right" },
-  { src: "sticker-4", w: 311, rot: 0, top: "5%", right: "calc(2% + 200px)", delay: 0.12, pop: "right", hideOnMobile: true },
-  { src: "sticker-cannoli", w: 294, rot: 0, top: "calc(8% - 100px)", left: "35%", delay: 0.3, pop: "scale", topClass: "top-[calc(8%-60px)] sm:top-[calc(8%-100px)]" },
-  { src: "sticker-iced-coffee", w: 343, rot: 0, top: "calc(4% + 500px)", right: "calc(0% + 140px)", delay: 0.22, pop: "right" },
-  { src: "sticker-12", w: 240, rot: -18, top: "35%", left: "-2%", delay: 0.2, pop: "left" },
-  { src: "sticker-6", w: 408, rot: 0, top: "calc(11% + 20px)", right: "0%", delay: 0.25, pop: "right" },
-  { src: "sticker-10", w: 380, rot: 0, top: "56%", left: "calc(25% + 10px)", delay: 0.35, pop: "scale" },
-  { src: "sticker-16", w: 311, rot: 0, top: "calc(9% + 85px)", left: "16%", delay: 0.32, pop: "left" },
-  { src: "sticker-13", w: 279, rot: 0, top: "calc(65% + 40px)", right: "calc(8% - 20px)", delay: 0.3, pop: "right" },
-  { src: "sticker-7", w: 276, rot: -18, top: "80%", left: "0%", delay: 0.55, pop: "left" },
-  { src: "sticker-moka", w: 221, rot: 8, top: "40%", right: "3%", delay: 0.18, pop: "right" },
-  { src: "sticker-cup", w: 238, rot: 5, top: "calc(80% - 90px)", left: "50px", delay: 0.48, pop: "left" },
-  { src: "sticker-cocoa-v2", w: 312, rot: -3, top: "calc(70% - 115px)", left: "0%", delay: 0.42, pop: "left", flip: true },
-  { src: "sticker-logo-badge", w: 160, rot: 12, top: "8%", right: "15%", delay: 0.2, pop: "right" },
-  { src: "sticker-5", w: 280, rot: -8, top: "calc(15% + 650px)", right: "5%", delay: 0.25, pop: "right", topClass: "top-[calc(15%+610px)] sm:top-[calc(15%+650px)]" },
-  { src: "sticker-takeaway-cup", w: 200, rot: -6, top: "calc(5% + 50px)", left: "calc(18% - 40px)", delay: 0.35, pop: "left" },
+/* ── Hero trail stickers ──
+   The 14 stickers previously positioned in the desktop collage. Position,
+   rotation, delay and pop-direction are gone: the trail derives placement from
+   the cursor. Intrinsic width/height are required by ImageTrail so each
+   wrapper can carry a correct aspect-ratio before the image loads. */
+const heroTrailItems: TrailItem[] = [
+  { src: "/images/sticker-3.png", width: 1134, height: 758, scale: 1.1 },
+  { src: "/images/sticker-cannoli.png", width: 912, height: 1152, scale: 1.1 },
+  { src: "/images/sticker-iced-coffee.png", width: 624, height: 932 },
+  { src: "/images/sticker-12.png", width: 766, height: 838 },
+  { src: "/images/sticker-6.png", width: 790, height: 710 },
+  { src: "/images/sticker-10.png", width: 1288, height: 964 },
+  { src: "/images/sticker-16.png", width: 1216, height: 1366 },
+  { src: "/images/sticker-7.png", width: 966, height: 1002 },
+  { src: "/images/sticker-moka.png", width: 992, height: 1064 },
+  { src: "/images/sticker-cup.png", width: 1238, height: 1105 },
+  { src: "/images/sticker-cocoa-v2.png", width: 1962, height: 1176 },
+  { src: "/images/sticker-logo-badge.png", width: 492, height: 426 },
+  { src: "/images/sticker-5.png", width: 1364, height: 1364 },
+  { src: "/images/sticker-takeaway-cup.png", width: 1673, height: 1964 },
+  { src: "/images/sticker-card.png", width: 613, height: 910, scale: 0.6, rotate: 34 },
+  { src: "/images/sticker-piadina-v2.png", width: 1140, height: 892 },
+  { src: "/images/sticker-tomato-single.png", width: 1024, height: 1024 },
 ];
 
 /* ── Mobile hero sticker spine (under sm only) — vertical cascade down the right edge ── */
@@ -430,7 +453,7 @@ function AboutVideoPolaroid() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.35, delay: 0.15 }}
-      className="absolute left-[40%] top-[50%] w-[32%] rotate-3 drop-shadow-2xl"
+      className="absolute left-[calc(40%+50px)] top-[50%] w-[32%] rotate-3 drop-shadow-2xl"
     >
       <div className="relative">
         <Image src="/images/polaroid-elio.png" alt="Pete's son Elio" width={795} height={946} className="block w-full h-auto" />
@@ -627,6 +650,10 @@ type HeroProps = {
 
 export default function Hero({ cafeInfo, menu, menuPages, announcement, navigation, aboutSection, instagramReels }: HeroProps) {
   const constraintRef = useRef<HTMLDivElement>(null);
+  // Pointer surface for the image trail. The trail's own container is
+  // pointer-events:none so it cannot swallow clicks on the nav above it,
+  // which means listeners must attach to something that does receive events.
+  const heroRef = useRef<HTMLElement>(null);
   const zCounter = useRef(1000);
   const getNextZ = () => ++zCounter.current;
 
@@ -653,6 +680,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
   return (
     <div ref={constraintRef} className="relative overflow-x-hidden">
     <section
+      ref={heroRef}
       className="relative text-white"
       style={{ minHeight: "100vh", backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}
     >
@@ -660,22 +688,14 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
       {/* Navigation */}
       <Nav items={navigation?.items} />
 
-      {/* Stickers */}
-      {stickerLayout.map((s, i) => (
-        <Draggable
-          key={`${s.src}-${i}`}
-          rotation={s.rot}
-          delay={s.delay * 0.55}
-          initialZ={1000 + i}
-          constraintRef={constraintRef}
-          getNextZ={getNextZ}
-          popFrom={s.pop}
-          className={`hidden sm:block ${s.topClass ?? ""}`}
-          style={{ top: s.topClass ? undefined : s.top, left: s.left, right: s.right, width: `clamp(${Math.round(s.w * 0.35 * 1.05)}px, ${(s.w / 13) * 1.05}vw, ${s.w}px)` }}
-        >
-          <Image src={`/images/${s.src}.png`} alt="" width={s.w} height={s.w} sizes={`${s.w}px`} className={`w-full h-auto ${s.outlined ? "sticker-outlined" : "sticker-shadow"} ${s.flip ? "scale-x-[-1]" : ""}`} draggable={false} />
-        </Draggable>
-      ))}
+      {/* Sticker image trail (desktop only) — replaces the former static collage.
+         Layering is deliberate and explicit rather than DOM-order dependent:
+         nav z-10000 > trail z-9999 > logo and byline z-9998. The trail sweeps
+         over the logo, but stays under the nav so navigation remains usable.
+         The wrapper is pointer-events-none, so it never intercepts clicks. */}
+      <div className="hidden sm:block absolute inset-0 z-[9999] pointer-events-none">
+        <ImageTrail items={heroTrailItems} surfaceRef={heroRef} />
+      </div>
 
 
       {/* Central logo (desktop) */}
@@ -683,11 +703,33 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
         initial={{ scale: 0, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ ...pop, delay: 0.25 }}
-        className="hidden sm:block absolute z-[9999] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
+        className="hidden sm:block absolute z-[9998] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         style={{ top: "45%", width: "clamp(190px, 22.8vw, 342px)" }}
       >
         <Image src="/images/elios-hero-logo-new.png" alt="Elio's Panino Italiano" width={1000} height={520} className="w-full h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
       </motion.div>
+
+      {/* Hero tagline (desktop) — sits under the central logo.
+         The logo is centred on 45% and its height tracks its clamped width
+         (aspect 1000x520), so the offset below clamps in step with it. */}
+      <motion.h1
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.4, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
+        className="hidden sm:block absolute z-[9998] left-1/2 -translate-x-1/2 text-center whitespace-nowrap pointer-events-none"
+        style={{
+          top: "calc(45% + clamp(70px, calc(5.93vw + 22px), 111px))",
+          fontFamily: "var(--font-work-sans), sans-serif",
+          fontSize: "clamp(22px, 2.4vw, 36px)",
+          lineHeight: 0.94,
+          letterSpacing: "-0.045em",
+          color: "#FFFFDC",
+          textShadow: "0 2px 4px rgba(0,0,0,0.4)",
+        }}
+      >
+        Walk in a customer.<br />
+        <em className="italic">Leave as family.</em>
+      </motion.h1>
 
       {/* Mobile hero — asymmetric: left text column + right sticker spine */}
       <div className="sm:hidden absolute inset-0 flex">
@@ -711,7 +753,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
             className="mt-6"
-            style={{ fontFamily: "'Times New Roman', Times, serif", fontSize: "22.7px", lineHeight: 0.94, letterSpacing: "-0.045em", color: "#FFFFDC", textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}
+            style={{ fontFamily: "var(--font-work-sans), sans-serif", fontSize: "22.7px", lineHeight: 0.94, letterSpacing: "-0.045em", color: "#FFFFDC", textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}
           >
             Walk in a customer.<br />
             <em className="italic">Leave as family.</em>
@@ -748,18 +790,6 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
 
     {/* About section */}
     <section className="relative text-white px-6 sm:px-10 py-20 sm:py-32 " id="about" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
-      {/* Card sticker */}
-      <motion.div
-        initial={{ opacity: 0, rotate: 15 }}
-        whileInView={{ opacity: 1, rotate: 8 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.35, delay: 0.3 }}
-        className="hidden sm:block absolute left-[3%] top-[5%] pointer-events-none"
-        style={{ width: "clamp(80px, 10vw, 140px)" }}
-      >
-        <Image src="/images/sticker-card.png" alt="" width={140} height={200} sizes="140px" className="w-full h-auto sticker-shadow" />
-      </motion.div>
-
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-12">
         {/* About graphic — three-generation polaroid composition */}
         <motion.div
@@ -779,46 +809,34 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
 
             {/* Dashed arrows */}
             <img src="/images/arrow-dad.svg" alt="" aria-hidden="true" className="absolute left-[calc(36%-50px)] top-[calc(6%-20px)] w-[48%] pointer-events-none" />
-            <img src="/images/arrow-elio.svg" alt="" aria-hidden="true" className="absolute left-[60%] top-[calc(37%-20px)] w-[27%] pointer-events-none" />
+            <img src="/images/arrow-elio.svg" alt="" aria-hidden="true" className="absolute left-[calc(60%+50px)] top-[calc(37%-20px)] w-[27%] pointer-events-none" />
             <img src="/images/arrow-pete.svg" alt="" aria-hidden="true" className="absolute left-[1%] top-[52%] w-[47%] pointer-events-none" />
           </div>
         </motion.div>
 
         {/* About Us text */}
         <div className="flex-1">
-          <motion.p
+          {/* div, not p — PortableText emits block-level <p> children */}
+          <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.35, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC] w-[85vw] sm:w-auto"
-            style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}
+            className="text-[16px] leading-[19.2px] text-pretty text-[#FFFFDC] w-[85vw] sm:w-auto"
+            style={{ fontFamily: "var(--font-work-sans), sans-serif", letterSpacing: "-0.04em" }}
           >
             {aboutSection?.body ? (
-              <PortableText value={aboutSection.body} />
+              <PortableText value={withoutBlankBlocks(aboutSection.body)} components={portableTextComponents} />
             ) : (
-              <>Elio&apos;s started with a simple idea: bring the kind of food you&apos;d actually eat in Italy, proper paninis, real focaccia, coffee that takes itself seriously without taking itself too seriously, to the corner of Newlands Road in <em className="italic">Coburg North.</em></>
+              <p>Elio&apos;s started with a simple idea: bring the kind of food you&apos;d actually eat in Italy, proper paninis, real focaccia, coffee that takes itself seriously without taking itself too seriously, to the corner of Newlands Road in <em className="italic">Coburg North.</em></p>
             )}
-          </motion.p>
+          </motion.div>
         </div>
       </div>
     </section>
 
     {/* Menu section */}
     <section className="relative text-white px-6 sm:px-10 pt-10 pb-20 sm:pb-32 " id="menu" style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}>
-      {/* Tinned tomatoes — behind panini sticker */}
-      <motion.div
-        initial={{ opacity: 0, x: 24 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.35, delay: 0.1 }}
-        className="hidden sm:block absolute pointer-events-none z-[1]"
-        style={{ right: "calc(5% - 60px)", top: "calc(15% + 355px)", width: "clamp(96px, 11vw, 160px)" }}
-      >
-        <Image src="/images/sticker-tomato-can.png" alt="" width={162} height={162} sizes="162px" className="w-full h-auto sticker-shadow -rotate-5" />
-      </motion.div>
-
-
       {/* Piadina sticker */}
       <motion.div
         initial={{ opacity: 0, x: -24 }}
@@ -926,24 +944,24 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
             transition={{ duration: 0.35, delay: 0.2, ease: [0.22, 1, 0.36, 1] }}
           >
             {cafeInfo?.cateringText ? (
-              <div className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC] w-[85vw] sm:w-auto" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>
-                <PortableText value={cafeInfo.cateringText} />
+              <div className="text-[16px] leading-[19.2px] text-pretty text-[#FFFFDC] w-[85vw] sm:w-auto" style={{ fontFamily: "var(--font-work-sans), sans-serif", letterSpacing: "-0.04em" }}>
+                <PortableText value={withoutBlankBlocks(cafeInfo.cateringText)} components={portableTextComponents} />
               </div>
             ) : (
               <>
-                <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC] mb-8 w-[85vw] sm:w-auto" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>
+                <p className="text-[16px] leading-[19.2px] text-pretty text-[#FFFFDC] mb-8 w-[85vw] sm:w-auto" style={{ fontFamily: "var(--font-work-sans), sans-serif", letterSpacing: "-0.04em" }}>
                   From office lunches to private events, we bring Elio&apos;s to you. Our catering menu features our signature paninis, fresh focaccia, platters, and of course, proper Italian coffee.
                 </p>
-                <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC] mb-12 w-[85vw] sm:w-auto" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>
+                <p className="text-[16px] leading-[19.2px] text-pretty text-[#FFFFDC] mb-12 w-[85vw] sm:w-auto" style={{ fontFamily: "var(--font-work-sans), sans-serif", letterSpacing: "-0.04em" }}>
                   Get in touch to discuss your next event.
                 </p>
-                <div className="flex flex-col sm:flex-row gap-6 sm:gap-12" style={{ fontFamily: "'Times New Roman', Times, serif" }}>
+                <div className="flex flex-col sm:flex-row gap-6 sm:gap-12" style={{ fontFamily: "var(--font-work-sans), sans-serif" }}>
                   <div>
-                    <p className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC]">(03) 9191 0107</p>
-                    <a href="mailto:info@elioscoburg.com" className="block text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC] hover:text-white transition-colors">info@elioscoburg.com</a>
+                    <p className="text-[16px] leading-[19.2px] text-[#FFFFDC]">(03) 9191 0107</p>
+                    <a href="mailto:info@elioscoburg.com" className="block text-[16px] leading-[19.2px] text-[#FFFFDC] hover:text-white transition-colors">info@elioscoburg.com</a>
                   </div>
                   <div>
-                    <a href="https://instagram.com/elios.coburg" target="_blank" rel="noopener noreferrer" className="text-lg sm:text-xl md:text-[26px] leading-[0.95] text-[#FFFFDC] underline underline-offset-4 hover:text-white transition-colors" style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}>@elios.coburg</a>
+                    <a href="https://instagram.com/elios.coburg" target="_blank" rel="noopener noreferrer" className="text-[16px] leading-[19.2px] text-[#FFFFDC] underline underline-offset-4 hover:text-white transition-colors" style={{ fontFamily: "var(--font-work-sans), sans-serif", letterSpacing: "-0.04em" }}>@elios.coburg</a>
                   </div>
                 </div>
               </>
@@ -952,23 +970,18 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
 
           <CateringEnquiryForm />
 
-          {/* Cup + panini-receipts below the enquiry form */}
+          {/* Cup + panini-receipts below the enquiry form — mobile only */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.35, delay: 0.2 }}
-            className="mt-[18px]"
+            className="mt-[18px] sm:hidden"
           >
             {/* Mobile: cup nestled in the panini-with-receipts bottom-right corner (panini 8% smaller) */}
             <div className="relative inline-block sm:hidden">
               <Image src="/images/panini-receipts.png" alt="" width={1260} height={1620} sizes="260px" className="block h-auto sticker-shadow" style={{ width: "clamp(258px, 37vw, 313px)" }} />
               <Image src="/images/sticker-cup.png" alt="" width={180} height={180} sizes="110px" className="absolute bottom-0 right-0 h-auto sticker-shadow" style={{ width: "clamp(96px, 28vw, 120px)" }} />
-            </div>
-            {/* Desktop: cup + panini side by side */}
-            <div className="hidden sm:flex flex-wrap items-end gap-6">
-              <Image src="/images/sticker-cup.png" alt="" width={180} height={180} sizes="170px" className="h-auto sticker-shadow" style={{ width: "clamp(110px, 16vw, 170px)" }} />
-              <Image src="/images/panini-receipts.png" alt="" width={1260} height={1620} sizes="340px" className="h-auto sticker-shadow" style={{ width: "clamp(280px, 40vw, 340px)" }} />
             </div>
           </motion.div>
         </div>
@@ -1014,7 +1027,7 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           <div>
             <p
               className="text-[11px] uppercase tracking-[0.18em] mb-4"
-              style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255,255,220,0.55)" }}
+              style={{ fontFamily: "var(--font-plex-mono), monospace", fontWeight: 500, color: "rgba(255,255,220,0.55)" }}
             >
               Visit
             </p>
@@ -1023,8 +1036,8 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
               target="_blank"
               rel="noopener noreferrer"
               aria-label="Get directions"
-              className="group block text-[#FFFFDC] hover:text-[#eeece6] transition-colors"
-              style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.01em" }}
+              className="group block uppercase text-[#FFFFDC] hover:text-[#eeece6] transition-colors"
+              style={{ fontFamily: "var(--font-plex-mono), monospace", letterSpacing: "0.02em" }}
             >
               <p className="text-lg sm:text-lg md:text-xl leading-[1.2]">{addr}</p>
               <p className="text-lg sm:text-lg md:text-xl leading-[1.2]">Coburg North, 3058</p>
@@ -1039,11 +1052,11 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           <div>
             <p
               className="text-[11px] uppercase tracking-[0.18em] mb-4"
-              style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255,255,220,0.55)" }}
+              style={{ fontFamily: "var(--font-plex-mono), monospace", fontWeight: 500, color: "rgba(255,255,220,0.55)" }}
             >
               Contact
             </p>
-            <div style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.01em" }}>
+            <div className="uppercase" style={{ fontFamily: "var(--font-plex-mono), monospace", letterSpacing: "0.02em" }}>
               <a href={`tel:${phone.replace(/[^0-9+]/g, "")}`} className="block text-lg sm:text-lg md:text-xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">{phone}</a>
               <a href={`mailto:${email}`} className="block text-lg sm:text-lg md:text-xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors break-all">{email}</a>
               <a href={`https://instagram.com/${igHandle}`} target="_blank" rel="noopener noreferrer" className="block text-lg sm:text-lg md:text-xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">@{igHandle}</a>
@@ -1054,11 +1067,11 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
           <div>
             <p
               className="text-[11px] uppercase tracking-[0.18em] mb-4"
-              style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", color: "rgba(255,255,220,0.55)" }}
+              style={{ fontFamily: "var(--font-plex-mono), monospace", fontWeight: 500, color: "rgba(255,255,220,0.55)" }}
             >
               Hours
             </p>
-            <div style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.01em" }}>
+            <div className="uppercase" style={{ fontFamily: "var(--font-plex-mono), monospace", letterSpacing: "0.02em" }}>
               {hoursRows.map((h, i) => (
                 <div key={i} className="flex items-baseline leading-[1.2] text-lg sm:text-lg md:text-xl text-[#FFFFDC]">
                   <span className="whitespace-nowrap">{h.days}</span>
