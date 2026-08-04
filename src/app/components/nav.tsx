@@ -2,12 +2,16 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
+// Fallback when Sanity has no navigation document. Paths, not anchors —
+// each section now lives on its own route. Contact is intentionally absent:
+// the contact block renders at the bottom of every page.
 const defaultNavItems = [
-  { label: "About", href: "#about" },
-  { label: "Menu", href: "#menu" },
-  { label: "Catering", href: "#catering" },
-  { label: "Contact", href: "#contact" },
+  { label: "About", href: "/about" },
+  { label: "Menu", href: "/menu" },
+  { label: "Catering", href: "/catering" },
 ];
 
 type NavProps = {
@@ -106,7 +110,7 @@ function NavItem({ item, active }: { item: { label: string; href: string }; acti
   }, []);
 
   return (
-    <a
+    <Link
       ref={ref}
       href={item.href}
       className="relative text-[12px] uppercase tracking-[0.1em] hover:text-[#eeece6] transition-colors"
@@ -114,40 +118,18 @@ function NavItem({ item, active }: { item: { label: string; href: string }; acti
     >
       <span className="relative z-10">{item.label}</span>
       {size.w > 0 && <SketchCircle w={size.w} h={size.h} seed={item.label} active={active} />}
-    </a>
+    </Link>
   );
 }
 
 export default function Nav({ items }: NavProps) {
   const navItems = items && items.length > 0 ? items : defaultNavItems;
-  const [activeId, setActiveId] = useState("");
-
-  useEffect(() => {
-    const ids = navItems.map((i) => i.href.replace(/^#/, ""));
-    const sections = ids
-      .map((id) => document.getElementById(id))
-      .filter((el): el is HTMLElement => el !== null);
-    if (sections.length === 0) return;
-
-    const visible = new Set<string>();
-    const observer = new IntersectionObserver(
-      (entries) => {
-        entries.forEach((e) => {
-          if (e.isIntersecting) visible.add(e.target.id);
-          else visible.delete(e.target.id);
-        });
-        setActiveId(ids.find((id) => visible.has(id)) ?? "");
-      },
-      { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
-    );
-    sections.forEach((s) => observer.observe(s));
-    return () => observer.disconnect();
-  }, [navItems]);
+  const pathname = usePathname();
 
   return (
     <nav className="fixed top-0 left-0 right-0 z-[10000] flex justify-between sm:justify-center gap-0 sm:gap-[43px] px-5 sm:px-4 pt-3 sm:pt-4">
       {navItems.map((item) => (
-        <NavItem key={item.label} item={item} active={activeId === item.href.replace(/^#/, "")} />
+        <NavItem key={item.label} item={item} active={pathname === item.href} />
       ))}
     </nav>
   );
