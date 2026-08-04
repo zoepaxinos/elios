@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Cormorant_Garamond, Karla, Overpass, Caveat } from "next/font/google";
+import { Cormorant_Garamond, Karla, Overpass, Caveat, Work_Sans, IBM_Plex_Mono } from "next/font/google";
 import { draftMode } from "next/headers";
 import { VisualEditing } from "next-sanity/visual-editing";
 import { SanityLive } from "@/sanity/live";
@@ -33,6 +33,19 @@ const overpass = Overpass({
 const caveat = Caveat({
   variable: "--font-caveat",
   subsets: ["latin"],
+});
+
+const workSans = Work_Sans({
+  variable: "--font-work-sans",
+  subsets: ["latin"],
+  style: ["normal", "italic"],
+});
+
+// IBM Plex Mono has no variable axis — each weight is a separate file, so keep the list tight.
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
+  subsets: ["latin"],
+  weight: ["400", "500"],
 });
 
 export async function generateMetadata(): Promise<Metadata> {
@@ -81,7 +94,7 @@ export default async function RootLayout({
   return (
     <html
       lang="en"
-      className={`${cormorant.variable} ${karla.variable} ${overpass.variable} ${caveat.variable} h-full antialiased`}
+      className={`${cormorant.variable} ${karla.variable} ${overpass.variable} ${caveat.variable} ${workSans.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col bg-[#13322b] text-espresso font-body">
         <MotionProvider>{children}</MotionProvider>

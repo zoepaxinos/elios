@@ -95,8 +95,8 @@ export default function AboutPage() {
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 0.35, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
-            className="text-base sm:text-lg md:text-[24px] leading-[0.95] text-[#eeece6]"
-            style={{ fontFamily: "'Times New Roman', Times, serif", letterSpacing: "-0.04em" }}
+            className="text-[16px] leading-[19.2px] text-pretty text-[#eeece6]"
+            style={{ fontFamily: "var(--font-work-sans), sans-serif", letterSpacing: "-0.04em" }}
           >
             Elio&apos;s started with a simple idea: bring the kind of food you&apos;d actually eat in Italy, proper paninis,
             real focaccia, coffee that takes itself seriously without taking itself too seriously, to the corner of Newlands

@@ -5,6 +5,8 @@
   --font-body: var(--font-karla);
   --font-nav: var(--font-overpass);
   --font-handwriting: var(--font-caveat);
+  --font-serif: var(--font-work-sans);
+  --font-mono: var(--font-plex-mono);
 
   --color-parchment: #FAF6F1;
   --color-canvas: #f0efe6;
