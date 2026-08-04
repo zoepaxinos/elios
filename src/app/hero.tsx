@@ -216,16 +216,7 @@ const mobileSpine: { src: string; w: number; rot: number; right: number; dy?: nu
 ];
 
 /* ── Main Hero ── */
-type HeroProps = {
-  cafeInfo: any;
-  menu: any[];
-  menuPages: any[];
-  announcement: any;
-  aboutSection: any;
-  instagramReels?: any;
-};
-
-export default function Hero({ cafeInfo, menu, menuPages, announcement, aboutSection, instagramReels }: HeroProps) {
+export default function Hero() {
   const constraintRef = useRef<HTMLDivElement>(null);
   // Pointer surface for the image trail. The trail's own container is
   // pointer-events:none so it cannot swallow clicks on the nav above it,
