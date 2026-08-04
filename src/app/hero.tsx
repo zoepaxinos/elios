@@ -243,37 +243,62 @@ export default function Hero() {
       </div>
 
 
-      {/* Central logo (desktop) */}
-      <motion.div
-        initial={{ scale: 0, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
-        transition={{ ...pop, delay: 0.25 }}
-        className="hidden sm:block absolute z-[9998] left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none"
-        style={{ top: "45%", width: "clamp(190px, 22.8vw, 342px)" }}
-      >
-        <Image src="/images/elios-hero-logo-new.png" alt="Elio's Panino Italiano" width={1000} height={520} className="w-full h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
-      </motion.div>
+      {/* Hero lockup (desktop) — the tagline sits either side of the logo.
+          On load both halves start tucked behind the logo and slide outward
+          while the logo springs up, so the line appears to break apart around
+          it. Percentage x offsets are relative to each half's own width, so
+          the travel scales with the type rather than being a fixed distance.
 
-      {/* Hero tagline (desktop) — sits under the central logo.
-         The logo is centred on 45% and its height tracks its clamped width
-         (aspect 1000x520), so the offset below clamps in step with it. */}
+          The whole lockup is one <h1>: splitting it into a heading plus a
+          stray paragraph would leave assistive tech reading half a sentence. */}
       <motion.h1
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.4, delay: 0.4, ease: [0.22, 1, 0.36, 1] }}
-        className="hidden sm:block absolute z-[9998] left-1/2 -translate-x-1/2 text-center whitespace-nowrap pointer-events-none"
+        className="hidden sm:block absolute z-[9998] left-1/2 top-[45%] -translate-x-1/2 -translate-y-1/2 pointer-events-none"
         style={{
-          top: "calc(45% + clamp(70px, calc(5.93vw + 22px), 111px))",
-          fontFamily: "var(--font-work-sans), sans-serif",
-          fontSize: "clamp(22px, 2.4vw, 36px)",
+          // The wrapper is exactly the logo's width, so centring the wrapper
+          // centres the LOGO on the page. The two text halves hang outside it
+          // via right-full / left-full and therefore cannot pull it off centre,
+          // however unequal their lengths.
+          width: "clamp(190px, 22.8vw, 342px)",
+          // Matches the contact details block: IBM Plex Mono, uppercase, 0.02em.
+          // The old -0.045em tracking was tuned for Work Sans' proportional
+          // letterforms and reads cramped on a monospace.
+          fontFamily: "var(--font-plex-mono), monospace",
+          fontSize: "clamp(16px, 1.9vw, 30px)",
           lineHeight: 0.94,
-          letterSpacing: "-0.045em",
+          letterSpacing: "0.02em",
           color: "#FFFFDC",
           textShadow: "0 2px 4px rgba(0,0,0,0.4)",
         }}
       >
-        Walk in a customer.<br />
-        <em className="italic">Leave as family.</em>
+        <motion.span
+          initial={{ scale: 0, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ ...pop, delay: 0.25 }}
+          className="block"
+        >
+          <Image src="/images/logo-circle.png" alt="Elio's Panino Italiano" width={2112} height={2112} className="w-full h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
+        </motion.span>
+
+        {/* Vertical centring uses inset-y-0 + flex rather than -translate-y-1/2:
+            framer-motion writes its own inline transform for the x animation and
+            would overwrite a Tailwind translate. */}
+        <motion.span
+          initial={{ x: "55%", opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute right-full inset-y-0 mr-[60px] flex items-center whitespace-nowrap uppercase"
+        >
+          Walk in a customer.
+        </motion.span>
+
+        <motion.span
+          initial={{ x: "-55%", opacity: 0 }}
+          animate={{ x: 0, opacity: 1 }}
+          transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+          className="absolute left-full inset-y-0 ml-[60px] flex items-center whitespace-nowrap uppercase"
+        >
+          Leave as family.
+        </motion.span>
       </motion.h1>
 
       {/* Mobile hero — asymmetric: left text column + right sticker spine */}

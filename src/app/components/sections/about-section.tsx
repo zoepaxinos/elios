@@ -5,6 +5,7 @@ import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import { withoutBlankBlocks, portableTextComponents } from "../portable-text";
 import SectionShell from "./section-shell";
+import PageTitle from "./page-title";
 
 /* ── About video polaroid (Elio video) ── */
 function AboutVideoPolaroid() {
@@ -14,7 +15,7 @@ function AboutVideoPolaroid() {
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.35, delay: 0.15 }}
-      className="absolute left-[calc(40%+50px)] top-[50%] w-[32%] rotate-3 drop-shadow-2xl"
+      className="w-full rotate-3 drop-shadow-2xl"
     >
       <div className="relative">
         <Image src="/images/polaroid-elio.png" alt="Pete's son Elio" width={795} height={946} className="block w-full h-auto" />
@@ -40,6 +41,7 @@ function AboutVideoPolaroid() {
 export default function AboutSection({ aboutSection }: { aboutSection: any }) {
   return (
     <SectionShell id="about" className="px-6 sm:px-10 py-20 sm:py-32">
+      <PageTitle>About Us</PageTitle>
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-12">
         {/* About graphic — three-generation polaroid composition */}
         <motion.div
@@ -52,14 +54,29 @@ export default function AboutSection({ aboutSection }: { aboutSection: any }) {
           <div className="relative w-full aspect-[13/14] text-[#FFFFDC] scale-[1.15]" style={{ fontFamily: "var(--font-caveat)" }}>
             {/* Polaroid 1 — Pete's dad (B&W) */}
             <Image src="/images/polaroid-founders.png" alt="Pete's dad" width={1521} height={1518} sizes="(max-width: 768px) 42vw, 24vw" className="absolute left-[6%] top-[8%] w-[40%] h-auto drop-shadow-xl -rotate-3" />
-            {/* Polaroid 2 — the family */}
-            <Image src="/images/polaroid-family.png" alt="Pete's son Elio" width={400} height={470} sizes="(max-width: 768px) 40vw, 22vw" className="absolute left-[22%] top-[31%] w-[39%] h-auto drop-shadow-xl -rotate-2" />
-            {/* Polaroid 3 — the reason it all works (Elio video) */}
-            <AboutVideoPolaroid />
+            {/* Polaroid 2 — the family (Pete + Elio). This is also the anchor for
+                the Elio video polaroid and its arrow: both are nested inside and
+                hang off its bottom-right corner, so they track it at every
+                viewport width. They previously sat on fixed px offsets against
+                the outer container, which made them drift as it resized.
+                Percentages below are relative to THIS polaroid, not the container. */}
+            <div className="absolute left-[22%] top-[31%] w-[39%]">
+              <Image src="/images/polaroid-family.png" alt="Pete's son Elio" width={400} height={470} sizes="(max-width: 768px) 40vw, 22vw" className="block w-full h-auto drop-shadow-xl -rotate-2" />
 
-            {/* Dashed arrows */}
+              {/* Polaroid 3 — the reason it all works (Elio video), pinned to the
+                  bottom-right corner and pulled back to overlap it. */}
+              <div className="absolute left-full top-full w-[82%] -translate-x-[38%] -translate-y-[34%]">
+                {/* "Pete's son Elio" annotation. bottom-full puts its bottom edge on
+                    this polaroid's top edge, so it sits clear of the photo instead of
+                    across it — and being nested here it tracks the polaroid rather
+                    than needing its own anchor. */}
+                <img src="/images/arrow-elio.svg" alt="" aria-hidden="true" className="absolute bottom-full left-[calc(8%+60px)] mb-1 w-[86%] pointer-events-none" />
+                <AboutVideoPolaroid />
+              </div>
+            </div>
+
+            {/* Dashed arrows positioned against the whole composition */}
             <img src="/images/arrow-dad.svg" alt="" aria-hidden="true" className="absolute left-[calc(36%-50px)] top-[calc(6%-20px)] w-[48%] pointer-events-none" />
-            <img src="/images/arrow-elio.svg" alt="" aria-hidden="true" className="absolute left-[calc(60%+50px)] top-[calc(37%-20px)] w-[27%] pointer-events-none" />
             <img src="/images/arrow-pete.svg" alt="" aria-hidden="true" className="absolute left-[1%] top-[52%] w-[47%] pointer-events-none" />
           </div>
         </motion.div>

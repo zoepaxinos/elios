@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import Image from "next/image";
 import { urlFor } from "@/sanity/image";
 import SectionShell from "./section-shell";
+import PageTitle from "./page-title";
 
 /* ── Menu Book (side by side + lightbox with page nav) ── */
 const defaultMenuPages = ["/images/menu-2.png", "/images/menu-1.png"];
@@ -214,9 +215,13 @@ function MenuBook({ pages }: { pages?: string[] }) {
   );
 }
 
+/* Top padding matches the About and Catering sections. The original pt-10 was
+   set when this sat mid-page after About; as the top of its own page it needs
+   to clear the fixed nav (~38px mobile, ~53px desktop). */
 export default function MenuSection({ menu, menuPages }: { menu: any[]; menuPages: string[] }) {
   return (
-    <SectionShell id="menu" className="px-6 sm:px-10 pt-10 pb-20 sm:pb-32">
+    <SectionShell id="menu" className="px-6 sm:px-10 pt-20 sm:pt-32 pb-20 sm:pb-32">
+      <PageTitle>Our Menu</PageTitle>
       {/* Piadina sticker */}
       <motion.div
         initial={{ opacity: 0, x: -24 }}

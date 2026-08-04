@@ -6,6 +6,7 @@ import Image from "next/image";
 import { PortableText } from "@portabletext/react";
 import { withoutBlankBlocks, portableTextComponents } from "../portable-text";
 import SectionShell from "./section-shell";
+import PageTitle from "./page-title";
 
 /* ── Catering enquiry form (mailto submit) ── */
 const CATERING_FUTURA = "Futura, 'Trebuchet MS', sans-serif";
@@ -112,6 +113,7 @@ function CateringEnquiryForm() {
 export default function CateringSection({ cafeInfo }: { cafeInfo: any }) {
   return (
     <SectionShell id="catering" className="px-6 sm:px-10 pt-20 sm:pt-32 pb-4 sm:pb-6">
+      <PageTitle>Catering</PageTitle>
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center md:items-start gap-2 md:gap-12">
         {/* Left side — stickers and images */}
         <motion.div

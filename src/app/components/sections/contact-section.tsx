@@ -21,7 +21,7 @@ export default function ContactSection({ cafeInfo }: { cafeInfo: any }) {
     cafeInfo?.hours && cafeInfo.hours.length > 0
       ? cafeInfo.hours.map((h: any) => ({ days: h.days, time: h.time }))
       : [
-          { days: "Mon – Fri", time: "7am – 2:30pm" },
+          { days: "Monday – Friday", time: "7am – 3pm" },
           { days: "Saturday", time: "8am – 2:30pm" },
           { days: "Sunday", time: "9am – 2:30pm" },
         ];
@@ -41,7 +41,10 @@ export default function ContactSection({ cafeInfo }: { cafeInfo: any }) {
       </motion.div>
 
 
-      <div className="max-w-6xl mx-auto">
+      {/* max-w-7xl matches About, Menu and Catering. This block was max-w-6xl
+          from when it sat inside the single-page scroll; now that it renders on
+          every page it needs the same content width as the rest of the site. */}
+      <div className="max-w-7xl mx-auto">
         {/* Map (now above the contact text) */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
@@ -77,9 +80,9 @@ export default function ContactSection({ cafeInfo }: { cafeInfo: any }) {
               className="group block uppercase text-[#FFFFDC] hover:text-[#eeece6] transition-colors"
               style={{ fontFamily: "var(--font-plex-mono), monospace", letterSpacing: "0.02em" }}
             >
-              <p className="text-lg sm:text-lg md:text-xl leading-[1.2]">{addr}</p>
-              <p className="text-lg sm:text-lg md:text-xl leading-[1.2]">Coburg North, 3058</p>
-              <p className="text-lg sm:text-lg md:text-xl leading-[1.2]">
+              <p className="text-[18px] leading-[1.2]">{addr}</p>
+              <p className="text-[18px] leading-[1.2]">Coburg North, 3058</p>
+              <p className="text-[18px] leading-[1.2]">
                 Melbourne{" "}
                 <span aria-hidden="true" className="inline-block transition-transform group-hover:translate-x-1">→</span>
               </p>
@@ -95,9 +98,9 @@ export default function ContactSection({ cafeInfo }: { cafeInfo: any }) {
               Contact
             </p>
             <div className="uppercase" style={{ fontFamily: "var(--font-plex-mono), monospace", letterSpacing: "0.02em" }}>
-              <a href={`tel:${phone.replace(/[^0-9+]/g, "")}`} className="block text-lg sm:text-lg md:text-xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">{phone}</a>
-              <a href={`mailto:${email}`} className="block text-lg sm:text-lg md:text-xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors break-all">{email}</a>
-              <a href={`https://instagram.com/${igHandle}`} target="_blank" rel="noopener noreferrer" className="block text-lg sm:text-lg md:text-xl leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">@{igHandle}</a>
+              <a href={`tel:${phone.replace(/[^0-9+]/g, "")}`} className="block text-[18px] leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">{phone}</a>
+              <a href={`mailto:${email}`} className="block text-[18px] leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors break-all">{email}</a>
+              <a href={`https://instagram.com/${igHandle}`} target="_blank" rel="noopener noreferrer" className="block text-[18px] leading-[1.2] text-[#FFFFDC] hover:text-[#eeece6] transition-colors">@{igHandle}</a>
             </div>
           </div>
 
@@ -111,7 +114,7 @@ export default function ContactSection({ cafeInfo }: { cafeInfo: any }) {
             </p>
             <div className="uppercase" style={{ fontFamily: "var(--font-plex-mono), monospace", letterSpacing: "0.02em" }}>
               {hoursRows.map((h, i) => (
-                <div key={i} className="flex items-baseline leading-[1.2] text-lg sm:text-lg md:text-xl text-[#FFFFDC]">
+                <div key={i} className="flex items-baseline leading-[1.2] text-[18px] text-[#FFFFDC]">
                   <span className="whitespace-nowrap">{h.days}</span>
                   <span aria-hidden="true" className="flex-1 overflow-hidden mx-2 text-[#FFFFDC]/40 tracking-[0.25em] whitespace-nowrap">............................................................</span>
                   <span className="whitespace-nowrap">{h.time}</span>
@@ -121,16 +124,6 @@ export default function ContactSection({ cafeInfo }: { cafeInfo: any }) {
           </div>
         </motion.div>
 
-        {/* Logo — centered below the contact details */}
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.35, delay: 0.15, ease: [0.22, 1, 0.36, 1] }}
-          className="flex justify-center mt-12 sm:mt-16"
-        >
-          <Image src="/images/logo-circle.png" alt="Elio's" width={371} height={371} sizes="96px" className="w-[77px] sm:w-[96px] h-auto" />
-        </motion.div>
       </div>
     </SectionShell>
   );

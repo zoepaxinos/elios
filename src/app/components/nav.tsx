@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { motion } from "framer-motion";
+import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
@@ -13,6 +14,26 @@ const defaultNavItems = [
   { label: "Menu", href: "/menu" },
   { label: "Catering", href: "/catering" },
 ];
+
+/* Sanity's navigation document still stores pre-split anchor hrefs (#about,
+   #menu, …) from when the whole site was one scrolling page. Rather than
+   trusting whatever shape comes back, normalise it to routes that actually
+   exist. Anything that maps to no route is dropped — #contact in particular,
+   whose section now renders at the bottom of every page and has no route of
+   its own, so linking to /contact would 404.
+
+   Once the Studio data is migrated to paths this becomes a passthrough: a
+   value already starting with "/" is returned untouched. */
+const SECTION_ROUTES: Record<string, string> = {
+  about: "/about",
+  menu: "/menu",
+  catering: "/catering",
+};
+
+function toRoute(href: string): string | null {
+  if (href.startsWith("/")) return href;
+  return SECTION_ROUTES[href.replace(/^#/, "")] ?? null;
+}
 
 type NavProps = {
   items?: { label: string; href: string }[] | null;
@@ -123,14 +144,49 @@ function NavItem({ item, active }: { item: { label: string; href: string }; acti
 }
 
 export default function Nav({ items }: NavProps) {
-  const navItems = items && items.length > 0 ? items : defaultNavItems;
+  const source = items && items.length > 0 ? items : defaultNavItems;
+  const navItems = source
+    .map((i) => ({ label: i.label, href: toRoute(i.href) }))
+    .filter((i): i is { label: string; href: string } => i.href !== null);
   const pathname = usePathname();
 
+  // The home page carries the full Elio's lockup in its hero, so a wordmark in
+  // the nav would say the same thing twice — there it is omitted and the items
+  // centre instead. Every other page has no hero, so the wordmark appears and
+  // doubles as the link home, with the items pushed right.
+  const isHome = pathname === "/";
+
+  // Gutters and max-width mirror the page sections (px-6 sm:px-10 inside a
+  // max-w-7xl container), so the logo and the items line up with the content
+  // edges instead of sitting hard against the viewport.
   return (
-    <nav className="fixed top-0 left-0 right-0 z-[10000] flex justify-between sm:justify-center gap-0 sm:gap-[43px] px-5 sm:px-4 pt-3 sm:pt-4">
-      {navItems.map((item) => (
-        <NavItem key={item.label} item={item} active={pathname === item.href} />
-      ))}
+    <nav className="fixed top-0 left-0 right-0 z-[10000] px-6 sm:px-10 pt-3 sm:pt-4">
+      <div
+        className={`max-w-7xl mx-auto flex items-center ${isHome ? "justify-center" : "justify-between"}`}
+      >
+        {!isHome && (
+          <Link
+            href="/"
+            aria-label="Elio's — home"
+            className="shrink-0 transition-opacity hover:opacity-80"
+          >
+            <Image
+              src="/images/elios-wordmark.png"
+              alt="Elio's"
+              width={3225}
+              height={922}
+              sizes="(max-width: 640px) 92px, 130px"
+              priority
+              className="w-[92px] sm:w-[130px] h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]"
+            />
+          </Link>
+        )}
+        <div className="flex items-center gap-4 sm:gap-[43px]">
+          {navItems.map((item) => (
+            <NavItem key={item.label} item={item} active={pathname === item.href} />
+          ))}
+        </div>
+      </div>
     </nav>
   );
 }
