@@ -433,6 +433,7 @@ const heroTrailItems: TrailItem[] = [
   { src: "/images/sticker-card.png", width: 613, height: 910, scale: 0.6, rotate: 34 },
   { src: "/images/sticker-piadina-v2.png", width: 1140, height: 892 },
   { src: "/images/sticker-tomato-single.png", width: 1024, height: 1024 },
+  { src: "/images/sticker-loyalty-card.png", width: 729, height: 556 },
 ];
 
 /* ── Mobile hero sticker spine (under sm only) — vertical cascade down the right edge ── */
