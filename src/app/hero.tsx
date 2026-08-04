@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
-import Nav from "./components/nav";
 import ImageTrail, { type TrailItem } from "./components/image-trail";
 
 /* ── Animation ── */
@@ -222,12 +221,11 @@ type HeroProps = {
   menu: any[];
   menuPages: any[];
   announcement: any;
-  navigation: any;
   aboutSection: any;
   instagramReels?: any;
 };
 
-export default function Hero({ cafeInfo, menu, menuPages, announcement, navigation, aboutSection, instagramReels }: HeroProps) {
+export default function Hero({ cafeInfo, menu, menuPages, announcement, aboutSection, instagramReels }: HeroProps) {
   const constraintRef = useRef<HTMLDivElement>(null);
   // Pointer surface for the image trail. The trail's own container is
   // pointer-events:none so it cannot swallow clicks on the nav above it,
@@ -244,13 +242,10 @@ export default function Hero({ cafeInfo, menu, menuPages, announcement, navigati
       style={{ minHeight: "100vh", backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}
     >
 
-      {/* Navigation */}
-      <Nav items={navigation?.items} />
-
       {/* Sticker image trail (desktop only) — replaces the former static collage.
          Layering is deliberate and explicit rather than DOM-order dependent:
          nav z-10000 > trail z-9999 > logo and byline z-9998. The trail sweeps
-         over the logo, but stays under the nav so navigation remains usable.
+         over the logo, but stays under the nav so it remains usable.
          The wrapper is pointer-events-none, so it never intercepts clicks. */}
       <div className="hidden sm:block absolute inset-0 z-[9999] pointer-events-none">
         <ImageTrail items={heroTrailItems} surfaceRef={heroRef} />

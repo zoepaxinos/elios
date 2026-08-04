@@ -8,7 +8,7 @@ import {
   aboutSectionQuery,
   instagramReelsQuery,
 } from "@/sanity/queries";
-import Hero from "./hero";
+import Hero from "../hero";
 
 export default async function Home() {
   const [
@@ -35,7 +35,6 @@ export default async function Home() {
       menu={Array.isArray(menu) ? menu : []}
       menuPages={Array.isArray(menuPages) ? menuPages : []}
       announcement={announcement}
-      navigation={navigation}
       aboutSection={aboutSection}
       instagramReels={instagramReels}
     />
