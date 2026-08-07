@@ -8,7 +8,7 @@ import type { ReactNode } from "react";
  */
 const SECTION_BACKGROUND = {
   backgroundColor: "#13322b",
-  backgroundImage: "url(/images/BG.jpg)",
+  backgroundImage: "url(/images/BG-tile.jpg)",
   backgroundSize: "1200px auto",
   backgroundRepeat: "repeat",
 } as const;

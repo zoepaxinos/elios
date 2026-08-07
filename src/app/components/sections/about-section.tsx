@@ -41,7 +41,6 @@ function AboutVideoPolaroid() {
 export default function AboutSection({ aboutSection }: { aboutSection: any }) {
   return (
     <SectionShell id="about" className="px-6 sm:px-10 py-20 sm:py-32">
-      <PageTitle>About Us</PageTitle>
       <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 md:gap-12">
         {/* About graphic — three-generation polaroid composition */}
         <motion.div
@@ -83,6 +82,10 @@ export default function AboutSection({ aboutSection }: { aboutSection: any }) {
 
         {/* About Us text */}
         <div className="flex-1">
+          {/* Title sits with the copy rather than at the top of the section —
+              the polaroid composition occupies the left half, so a full-width
+              heading read as detached from the text it introduces. */}
+          <PageTitle>About Us</PageTitle>
           {/* div, not p — PortableText emits block-level <p> children */}
           <motion.div
             initial={{ opacity: 0, y: 10 }}

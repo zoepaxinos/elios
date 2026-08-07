@@ -8,6 +8,175 @@ import ImageTrail, { type TrailItem } from "./components/image-trail";
 /* ── Animation ── */
 const pop = { type: "spring" as const, stiffness: 420, damping: 32 };
 
+/* How long each sticker holds before the next one appears. The swap itself is
+   instantaneous — a hard cut with no fade or scale, so it reads as a flick
+   through a stack rather than a dissolve. */
+const FLICK_HOLD_MS = 900;
+
+/* Base slot for one sticker in the mobile flick, before its own scale.
+   Viewport-relative so the stickers stay proportionate across phone sizes, with
+   a ceiling so they do not run away on a large tablet in portrait. Note several
+   sticker PNGs carry transparent padding, so the visible subject is smaller
+   than its slot — the slot is deliberately generous to compensate. */
+const FLICK_BASE_CSS = "min(64vw, 300px)";
+
+/**
+ * Mobile-only tuning, keyed by src. The desktop trail and the mobile flick show
+ * the same stickers but need different sizing: the trail scatters them across
+ * the whole hero, the flick shows one at a time in a fixed box, so what reads
+ * well in one does not in the other. Anything absent here uses its default.
+ *
+ * `hidden` drops a sticker from the mobile sequence without touching desktop.
+ * Scales are relative to FLICK_BASE_PX, NOT to the sticker's desktop scale.
+ */
+type FlickItem = TrailItem & { polaroid?: boolean };
+
+/* Polaroids folded into the mobile rotation alongside the stickers. Kept
+   separate from heroTrailItems because the desktop cursor trail is stickers
+   only. `polaroid` swaps the cut-out drop shadow for the softer one the
+   polaroids use elsewhere — a sticker shadow traces the subject's silhouette,
+   which looks wrong on a rectangular white frame. */
+/* Stickers that appear only in the mobile rotation, never in the desktop cursor
+   trail. Counted as stickers for the interleave, so they can sit next to a
+   polaroid without breaking the no-two-polaroids-adjacent guarantee. */
+const MOBILE_EXTRA_STICKERS: FlickItem[] = [
+  { src: "/images/panini-receipts.png", width: 1260, height: 1620 },
+];
+
+const MOBILE_POLAROIDS: FlickItem[] = [
+  { src: "/images/polaroid-bw-family-1.png", width: 885, height: 1020, polaroid: true },
+  // Supplied as "bw family polaroids_2/4"; both are byte-identical to files
+  // already in the repo, so they are referenced rather than copied in again.
+  { src: "/images/catering-family-polaroid.png", width: 885, height: 1020, polaroid: true },
+  { src: "/images/polaroid-bw-family-3.png", width: 885, height: 1020, polaroid: true },
+  { src: "/images/hero-polaroid.png", width: 885, height: 1020, polaroid: true },
+];
+
+/**
+ * Spread the polaroids through the stickers so no two polaroids are ever
+ * adjacent — including across the loop boundary, since the sequence repeats.
+ *
+ * Strict one-for-one alternation is not possible here: there are far more
+ * stickers than polaroids, so it would mean showing the same four polaroids
+ * four times each per cycle. Spacing them evenly instead shows each once per
+ * cycle while still guaranteeing a sticker between every pair.
+ */
+function interleavePolaroids(stickers: FlickItem[], polaroids: FlickItem[]): FlickItem[] {
+  if (polaroids.length === 0) return stickers;
+  const gap = Math.max(1, Math.ceil(stickers.length / polaroids.length));
+  const out: FlickItem[] = [];
+  let next = 0;
+
+  stickers.forEach((s, i) => {
+    out.push(s);
+    if (next < polaroids.length && (i + 1) % gap === 0) out.push(polaroids[next++]);
+  });
+  // Any polaroids the spacing did not reach go on the end. The item before is
+  // always a sticker, and the sequence restarts on a sticker, so the adjacency
+  // guarantee holds around the loop.
+  while (next < polaroids.length) out.push(polaroids[next++]);
+
+  return out;
+}
+
+const MOBILE_FLICK: Record<string, { scale?: number; rotate?: number; hidden?: boolean }> = {
+  "/images/sticker-12.png": { hidden: true },          // olive oil bottle
+  "/images/sticker-logo-badge.png": { hidden: true },  // Elio's "E" badge
+  "/images/sticker-cannoli.png": { scale: 1.2 },
+  "/images/sticker-3.png": { scale: 1.2 },           // hand holding chips
+  "/images/sticker-cocoa-v2.png": { scale: 1.01 },   // hand holding coffee shaker (1.264 less 20%)
+  "/images/sticker-cup.png": { scale: 0.68 },        // green coffee cup (0.8 less 15%)
+  "/images/sticker-card.png": { scale: 0.8, rotate: 24 }, // scopa playing card
+  // Polaroids, all down 20% from default.
+  "/images/polaroid-bw-family-1.png": { scale: 0.8 },
+  "/images/catering-family-polaroid.png": { scale: 0.8 },
+  "/images/polaroid-bw-family-3.png": { scale: 0.8 },
+  "/images/hero-polaroid.png": { scale: 0.8 },
+};
+
+/**
+ * Mobile stand-in for the desktop cursor trail: the same stickers, shown one at
+ * a time in a fixed centred box. Touch devices have no cursor to drive a trail,
+ * so the sequence runs on a timer instead.
+ *
+ * Each sticker gets its own square slot sized FLICK_BASE_PX x its MOBILE_FLICK
+ * scale, and is object-contain within that slot. So stickers of very different
+ * proportions (0.65 through 3.5) all stay centred on one point, while per-item
+ * scale and rotation still apply. Slots are centred on each other rather than
+ * stacked from a corner, so a larger sticker grows around the same centre.
+ */
+function MobileStickerFlick({ items }: { items: TrailItem[] }) {
+  const visible = interleavePolaroids(
+    [
+      ...items.filter((i) => !MOBILE_FLICK[i.src]?.hidden),
+      ...MOBILE_EXTRA_STICKERS,
+    ],
+    MOBILE_POLAROIDS,
+  );
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (visible.length === 0) return;
+    // A looping animation is a vestibular trigger; hold on the first sticker.
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+
+    const id = setInterval(
+      () => setIndex((n) => (n + 1) % visible.length),
+      FLICK_HOLD_MS,
+    );
+    return () => clearInterval(id);
+  }, [visible.length]);
+
+  if (visible.length === 0) return null;
+
+  // The outer box fits the largest slot so nothing shifts the layout.
+  const maxScale = Math.max(1, ...visible.map((i) => MOBILE_FLICK[i.src]?.scale ?? 1));
+  const box = `calc(${FLICK_BASE_CSS} * ${maxScale})`;
+
+  return (
+    <div className="relative" style={{ width: box, height: box }}>
+      {/* Every sticker stays mounted and only the current one is visible.
+          Swapping the src on a single element would make each change wait on a
+          network fetch the first time round, which shows as a blank frame — the
+          opposite of instant. This way the change is a pure visibility toggle. */}
+      {visible.map((it, i) => {
+        const cfg = MOBILE_FLICK[it.src];
+        const slot = `calc(${FLICK_BASE_CSS} * ${cfg?.scale ?? 1})`;
+        return (
+          <div
+            key={it.src}
+            className="absolute inset-0 flex items-center justify-center"
+            style={{ visibility: i === index ? "visible" : "hidden" }}
+            aria-hidden={i !== index}
+          >
+            <div
+              className="flex items-center justify-center"
+              style={{
+                width: slot,
+                height: slot,
+                transform: cfg?.rotate ? `rotate(${cfg.rotate}deg)` : undefined,
+              }}
+            >
+              <Image
+                src={it.src}
+                alt=""
+                width={it.width}
+                height={it.height}
+                // This component only renders below the sm breakpoint, so the
+                // slot is never far off the viewport width.
+                sizes="100vw"
+                className={`max-w-full max-h-full w-auto h-auto object-contain ${
+                  it.polaroid ? "drop-shadow-xl" : "sticker-shadow"
+                }`}
+              />
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 /* ── Draggable element ── */
 function Draggable({
   children,
@@ -205,16 +374,6 @@ const heroTrailItems: TrailItem[] = [
   { src: "/images/sticker-loyalty-card.png", width: 729, height: 556 },
 ];
 
-/* ── Mobile hero sticker spine (under sm only) — vertical cascade down the right edge ── */
-const mobileSpine: { src: string; w: number; rot: number; right: number; dy?: number; outlined?: boolean }[] = [
-  { src: "sticker-cannoli", w: 180, rot: 8, right: 78, dy: 10 },
-  { src: "sticker-16", w: 170, rot: -5, right: -6, dy: -140 },
-  { src: "sticker-6", w: 171, rot: 7, right: -16, dy: -90 },
-  { src: "sticker-moka", w: 122, rot: -6, right: 230, dy: 120 },
-  { src: "sticker-cocoa-v2", w: 136, rot: 6, right: -10, dy: -80 },
-  { src: "sticker-takeaway-cup", w: 114, rot: 6, right: 116, dy: -80 },
-];
-
 /* ── Main Hero ── */
 export default function Hero() {
   const constraintRef = useRef<HTMLDivElement>(null);
@@ -227,10 +386,19 @@ export default function Hero() {
 
   return (
     <div ref={constraintRef} className="relative overflow-x-hidden">
+    {/* min-h-svh — the SMALL viewport height, i.e. the height with the browser
+        chrome visible.
+
+        100vh is the LARGE viewport (chrome hidden), so on landing the lower
+        rows of the hero sit below the fold. dvh fixes that but is dynamic: it
+        changes as the URL bar collapses during scroll, resizing the hero and
+        reflowing everything below it — visible as scroll jank. svh gets the
+        landing position right without ever changing value. On desktop all
+        three units are identical. */}
     <section
       ref={heroRef}
-      className="relative text-white"
-      style={{ minHeight: "100vh", backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}
+      className="relative text-white min-h-svh"
+      style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG-tile.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}
     >
 
       {/* Sticker image trail (desktop only) — replaces the former static collage.
@@ -263,7 +431,9 @@ export default function Hero() {
           // The old -0.045em tracking was tuned for Work Sans' proportional
           // letterforms and reads cramped on a monospace.
           fontFamily: "var(--font-plex-mono), monospace",
-          fontSize: "clamp(16px, 1.9vw, 30px)",
+          // Flat 18px to match the nav items, rather than scaling with the
+          // viewport as it did before.
+          fontSize: "18px",
           lineHeight: 0.94,
           letterSpacing: "0.02em",
           color: "#FFFFDC",
@@ -276,7 +446,7 @@ export default function Hero() {
           transition={{ ...pop, delay: 0.25 }}
           className="block"
         >
-          <Image src="/images/logo-circle.png" alt="Elio's Panino Italiano" width={2112} height={2112} className="w-full h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
+          <Image src="/images/elios-wordmark.png" alt="Elio's Panino Italiano" width={3225} height={922} className="w-full h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
         </motion.span>
 
         {/* Vertical centring uses inset-y-0 + flex rather than -translate-y-1/2:
@@ -288,7 +458,7 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="absolute right-full inset-y-0 mr-[60px] flex items-center whitespace-nowrap uppercase"
         >
-          Walk in a customer.
+          Walk in a customer
         </motion.span>
 
         <motion.span
@@ -297,63 +467,60 @@ export default function Hero() {
           transition={{ duration: 0.6, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
           className="absolute left-full inset-y-0 ml-[60px] flex items-center whitespace-nowrap uppercase"
         >
-          Leave as family.
+          {/* Decorative leading ellipsis, replacing the arrow that was here.
+              aria-hidden so it is not announced — the heading should read
+              "Walk in a customer … Leave as family" as one phrase, and a
+              screen reader spelling out dots would break that. */}
+          <span aria-hidden="true" className="mr-2 inline-block">
+            ...
+          </span>
+          Leave as family
         </motion.span>
       </motion.h1>
 
-      {/* Mobile hero — asymmetric: left text column + right sticker spine */}
-      <div className="sm:hidden absolute inset-0 flex">
-        {/* Left text column */}
-        <div className="w-[64%] shrink-0 relative z-10 flex flex-col justify-center items-start pl-7 pr-2">
+      {/* Mobile hero — centred stack at two fifths, three fifths and four
+          fifths of the viewport. The three rows are positioned by Tailwind
+          translate on their wrappers; the framer-motion animations live on the
+          inner elements, because framer writes its own inline transform and
+          would otherwise overwrite the centring. */}
+      <div className="sm:hidden absolute inset-0">
+        {/* Logo — 2/5 down */}
+        <div className="absolute left-0 right-0 top-[40%] -translate-y-1/2 flex justify-center px-6 z-0">
           <motion.div
-            initial={{ opacity: 0, y: 10 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+            initial={{ scale: 0, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ ...pop, delay: 0.15 }}
+            className="w-[190px]"
           >
-            <Image src="/images/elios-wordmark.png" alt="Elio's" width={3225} height={922} className="w-[200px] h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
-            <p
-              className="mt-2.5 uppercase"
-              style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", fontSize: "14px", letterSpacing: "0.1em", color: "#FFFFDC" }}
-            >
-              Panino Italiano
-            </p>
+            <Image src="/images/elios-wordmark.png" alt="Elio's Panino Italiano" width={3225} height={922} sizes="190px" className="w-full h-auto drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]" priority />
           </motion.div>
+        </div>
+
+        {/* Stickers — 3/5 down, above the logo in z-order */}
+        <div className="absolute left-0 right-0 top-[60%] -translate-y-1/2 flex justify-center pointer-events-none z-10">
+          <MobileStickerFlick items={heroTrailItems} />
+        </div>
+
+        {/* Tagline — 4/5 down */}
+        <div className="absolute left-0 right-0 top-[80%] -translate-y-1/2 flex justify-center px-6 z-10">
           <motion.h1
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.4, delay: 0.08, ease: [0.22, 1, 0.36, 1] }}
-            className="mt-6"
-            style={{ fontFamily: "var(--font-work-sans), sans-serif", fontSize: "22.7px", lineHeight: 0.94, letterSpacing: "-0.045em", color: "#FFFFDC", textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}
+            transition={{ duration: 0.4, delay: 0.35, ease: [0.22, 1, 0.36, 1] }}
+            className="uppercase text-center"
+            style={{
+              fontFamily: "var(--font-plex-mono), monospace",
+              fontSize: "18px",
+              lineHeight: 1.35,
+              letterSpacing: "0.02em",
+              color: "#FFFFDC",
+              textShadow: "0 2px 4px rgba(0,0,0,0.4)",
+            }}
           >
-            Walk in a customer.<br />
-            <em className="italic">Leave as family.</em>
+            Walk in a customer,<br />
+            Leave as family
           </motion.h1>
         </div>
-
-        {/* Right sticker spine */}
-        <div className="flex-1 min-w-0 relative z-10 flex flex-col items-end justify-evenly py-2 pointer-events-none">
-          {mobileSpine.map((s, i) => (
-            <motion.div
-              key={s.src}
-              initial={{ opacity: 0, scale: 0.8, rotate: s.rot }}
-              animate={{ opacity: 1, scale: 1, rotate: s.rot }}
-              transition={{ ...pop, delay: 0.15 + i * 0.08 }}
-              style={{ width: `${s.w}px`, marginRight: `${s.right}px`, marginTop: s.dy ? `${s.dy}px` : undefined }}
-            >
-              <Image src={`/images/${s.src}.png`} alt="" width={s.w} height={s.w} sizes={`${s.w}px`} className={`w-full h-auto ${s.outlined ? "sticker-outlined" : "sticker-shadow"}`} draggable={false} />
-            </motion.div>
-          ))}
-        </div>
-
-        {/* Standalone family polaroid — bottom-right */}
-        <motion.div
-          initial={{ opacity: 0, y: 12, rotate: -4 }}
-          animate={{ opacity: 1, y: 0, rotate: -4 }}
-          transition={{ ...pop, delay: 0.5 }}
-          className="absolute bottom-[76px] -right-[38px] w-[176px] drop-shadow-xl pointer-events-none z-0"
-        >
-          <Image src="/images/hero-polaroid.png" alt="" width={885} height={1020} sizes="168px" className="w-full h-auto" />
-        </motion.div>
       </div>
 
     </section>

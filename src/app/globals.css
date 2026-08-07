@@ -97,7 +97,7 @@ body {
 /* Textured green background */
 .bg-green-texture {
   background-color: #13322b;
-  background-image: url('/images/BG.jpg');
+  background-image: url('/images/BG-tile.jpg');
   background-size: 1200px auto;
   background-repeat: repeat;
 }

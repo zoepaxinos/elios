@@ -241,7 +241,7 @@ export default function MenuSection({ menu, menuPages }: { menu: any[]; menuPage
         viewport={{ once: true }}
         transition={{ duration: 0.35, delay: 0.3 }}
         className="hidden sm:block absolute right-[3%] pointer-events-none z-[100]"
-        style={{ top: "calc(3% - 100px)", width: "clamp(214px, 25vw, 367px)" }}
+        style={{ top: "calc(3% - 30px)", width: "clamp(214px, 25vw, 367px)" }}
       >
         <Image src="/images/sticker-7.png" alt="" width={497} height={497} sizes="497px" className="w-full h-auto sticker-shadow" />
       </motion.div>

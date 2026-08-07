@@ -33,7 +33,7 @@ export default function ReelsSection({ heading, reels }: { heading?: string; ree
     <section
       id="reels"
       className="relative text-white px-6 sm:px-10 py-20 sm:py-32"
-      style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}
+      style={{ backgroundColor: "#13322b", backgroundImage: "url(/images/BG-tile.jpg)", backgroundSize: "1200px auto", backgroundRepeat: "repeat" }}
     >
       <div className="max-w-6xl mx-auto">
         <motion.p

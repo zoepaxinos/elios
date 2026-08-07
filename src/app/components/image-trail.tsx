@@ -147,9 +147,12 @@ class ImageTrailEngine {
   private rect: DOMRect;
   /** Non-null exactly while a rAF loop is scheduled. Doubles as the "loop is running" flag. */
   private rafId: number | null = null;
+  /** Non-null while a rect re-measure is queued for the next frame. */
+  private measureRafId: number | null = null;
   private tick: () => void;
   private handlePointerMove: (ev: MouseEvent) => void;
   private measure: () => void;
+  private queueMeasure: () => void;
 
   constructor(container: HTMLElement, surface: HTMLElement) {
     this.container = container;
@@ -162,7 +165,19 @@ class ImageTrailEngine {
     this.tick = () => this.render();
 
     this.measure = () => {
+      this.measureRafId = null;
       this.rect = this.container.getBoundingClientRect();
+    };
+
+    /**
+     * Scroll fires far more often than the display refreshes, and each
+     * getBoundingClientRect() forces the browser to flush layout. Coalescing to
+     * at most one measurement per frame keeps a fast scroll from triggering a
+     * burst of synchronous layouts while GSAP is mutating transforms.
+     */
+    this.queueMeasure = () => {
+      if (this.measureRafId !== null) return;
+      this.measureRafId = requestAnimationFrame(this.measure);
     };
 
     this.handlePointerMove = (ev: MouseEvent) => {
@@ -177,8 +192,8 @@ class ImageTrailEngine {
     };
 
     this.surface.addEventListener("mousemove", this.handlePointerMove);
-    window.addEventListener("resize", this.measure, { passive: true });
-    window.addEventListener("scroll", this.measure, { passive: true });
+    window.addEventListener("resize", this.queueMeasure, { passive: true });
+    window.addEventListener("scroll", this.queueMeasure, { passive: true });
   }
 
   /**
@@ -275,11 +290,17 @@ class ImageTrailEngine {
 
   destroy() {
     this.surface.removeEventListener("mousemove", this.handlePointerMove);
-    window.removeEventListener("resize", this.measure);
-    window.removeEventListener("scroll", this.measure);
+    window.removeEventListener("resize", this.queueMeasure);
+    window.removeEventListener("scroll", this.queueMeasure);
     if (this.rafId !== null) {
       cancelAnimationFrame(this.rafId);
       this.rafId = null;
+    }
+    // A queued measure would otherwise fire one frame after teardown and read
+    // the rect of a container this engine no longer owns.
+    if (this.measureRafId !== null) {
+      cancelAnimationFrame(this.measureRafId);
+      this.measureRafId = null;
     }
     this.timelines.forEach((tl) => tl.kill());
     this.timelines.clear();

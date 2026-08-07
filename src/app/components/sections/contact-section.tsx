@@ -1,7 +1,6 @@
 "use client";
 
 import { motion } from "framer-motion";
-import Image from "next/image";
 import Map from "../map";
 import SectionShell from "./section-shell";
 
@@ -28,19 +27,6 @@ export default function ContactSection({ cafeInfo }: { cafeInfo: any }) {
 
   return (
     <SectionShell id="contact" className="px-6 sm:px-10 pt-4 sm:pt-6 pb-20 sm:pb-32">
-      {/* Loyalty card */}
-      <motion.div
-        initial={{ opacity: 0, x: -24 }}
-        whileInView={{ opacity: 1, x: 0 }}
-        viewport={{ once: true }}
-        transition={{ duration: 0.35, delay: 0.2 }}
-        className="absolute pointer-events-none"
-        style={{ left: "calc(5% + 130px)", top: "calc(10% + 60px)", width: "clamp(152px, 17vw, 247px)" }}
-      >
-        <Image src="/images/sticker-loyalty-card.png" alt="" width={260} height={260} sizes="260px" className="w-full h-auto sticker-shadow -rotate-6" />
-      </motion.div>
-
-
       {/* max-w-7xl matches About, Menu and Catering. This block was max-w-6xl
           from when it sat inside the single-page scroll; now that it renders on
           every page it needs the same content width as the rest of the site. */}
