@@ -136,7 +136,7 @@ function NavItem({ item, active }: { item: { label: string; href: string }; acti
       href={item.href}
       // One treatment at every breakpoint — IBM Plex Mono, 18px, 0.02em —
       // matching the contact details block.
-      className="relative uppercase transition-colors hover:text-[#eeece6] font-mono font-normal text-[18px] tracking-[0.02em]"
+      className="relative uppercase transition-colors hover:text-[#eeece6] font-mono font-normal text-[16px] tracking-[0.02em]"
       style={{ color: "#FFFFDC", textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}
     >
       <span className="relative z-10">{item.label}</span>

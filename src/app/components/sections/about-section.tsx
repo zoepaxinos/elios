@@ -7,6 +7,11 @@ import { withoutBlankBlocks, portableTextComponents } from "../portable-text";
 import SectionShell from "./section-shell";
 import PageTitle from "./page-title";
 
+/* Measured aperture of the polaroid frame in polaroid-elio.png, as a percentage
+   inset from each edge, and the bleed applied to it. */
+const APERTURE = { top: 6.98, left: 8.8, right: 7.04, bottom: 20.93 };
+const BLEED = 0.9;
+
 /* ── About video polaroid (Elio video) ── */
 function AboutVideoPolaroid() {
   return (
@@ -19,8 +24,20 @@ function AboutVideoPolaroid() {
     >
       <div className="relative">
         <Image src="/images/polaroid-elio.png" alt="Pete's son Elio" width={795} height={946} className="block w-full h-auto" />
-        {/* Video sits on top of the polaroid's photo window */}
-        <div className="absolute overflow-hidden" style={{ top: "6.98%", left: "8.8%", right: "7.04%", bottom: "20.93%" }}>
+        {/* Video sits on top of the polaroid's photo window, inset to the
+            frame's aperture less a small bleed. The video paints over the frame
+            image, so overlapping the aperture's inner edge is invisible while
+            falling short of it shows as a hairline gap — hence erring outward.
+            Raise BLEED if any gap remains. */}
+        <div
+          className="absolute overflow-hidden"
+          style={{
+            top: `${APERTURE.top - BLEED}%`,
+            left: `${APERTURE.left - BLEED}%`,
+            right: `${APERTURE.right - BLEED}%`,
+            bottom: `${APERTURE.bottom - BLEED}%`,
+          }}
+        >
           <video
             poster="/images/elio-poster.jpg"
             autoPlay
@@ -50,7 +67,12 @@ export default function AboutSection({ aboutSection }: { aboutSection: any }) {
           transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
           className="flex-shrink-0 w-full md:w-[52%]"
         >
-          <div className="relative w-full aspect-[13/14] text-[#FFFFDC] scale-[1.15]" style={{ fontFamily: "var(--font-caveat)" }}>
+          {/* One scale for the whole composition — polaroids and dashed arrows
+              alike — since everything inside is positioned in percentages
+              relative to this box. Desktop is 10% down from the 1.15 the
+              mobile stack keeps (1.15 x 0.9 = 1.035). The section switches to
+              its side-by-side layout at md, so the override starts there. */}
+          <div className="relative w-full aspect-[13/14] text-[#FFFFDC] scale-[1.15] md:scale-[1.035]" style={{ fontFamily: "var(--font-caveat)" }}>
             {/* Polaroid 1 — Pete's dad (B&W) */}
             <Image src="/images/polaroid-founders.png" alt="Pete's dad" width={1521} height={1518} sizes="(max-width: 768px) 42vw, 24vw" className="absolute left-[6%] top-[8%] w-[40%] h-auto drop-shadow-xl -rotate-3" />
             {/* Polaroid 2 — the family (Pete + Elio). This is also the anchor for

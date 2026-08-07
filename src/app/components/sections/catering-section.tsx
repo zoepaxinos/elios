@@ -11,7 +11,7 @@ import PageTitle from "./page-title";
 /* ── Catering enquiry form (mailto submit) ── */
 const CATERING_FUTURA = "Futura, 'Trebuchet MS', sans-serif";
 const cateringFieldClass =
-  "w-full rounded-md bg-[#102a23] px-4 text-[#41635C] text-[12px] outline-none placeholder:uppercase placeholder:tracking-[0.06em] placeholder:text-[#41635C] shadow-[inset_0_2px_3px_rgba(0,0,0,0.15),inset_0_2px_9px_3px_rgba(0,0,0,0.15)] focus:ring-1 focus:ring-[#FFFFDC]/30 transition";
+  "w-full rounded-md bg-[#102a23] px-4 text-[#41635C] text-[16px] sm:text-[12px] outline-none placeholder:uppercase placeholder:tracking-[0.06em] placeholder:text-[#41635C] shadow-[inset_0_2px_3px_rgba(0,0,0,0.15),inset_0_2px_9px_3px_rgba(0,0,0,0.15)] focus:ring-1 focus:ring-[#FFFFDC]/30 transition";
 
 function CateringEnquiryForm() {
   const [name, setName] = useState("");
@@ -61,10 +61,22 @@ function CateringEnquiryForm() {
           className={`${cateringFieldClass} h-[45px]`}
           style={{ fontFamily: CATERING_FUTURA }}
         />
+        {/* Starts as type="text" so the "Event date" placeholder shows —
+            type="date" ignores placeholders — then swaps to a real date input
+            for the native picker.
+
+            The swap happens on pointerdown, which fires BEFORE focus. Doing it
+            in onFocus (as this did) changes the element's type while it is
+            being focused, and several mobile browsers drop the focus in
+            response, so the picker only opens on a second tap. onFocus is kept
+            as the keyboard-navigation path, where no pointer event occurs. */}
         <input
           type="text"
           value={eventDate}
           onChange={(e) => setEventDate(e.target.value)}
+          onPointerDown={(e) => {
+            e.currentTarget.type = "date";
+          }}
           onFocus={(e) => {
             e.currentTarget.type = "date";
           }}
