@@ -134,8 +134,10 @@ function NavItem({ item, active }: { item: { label: string; href: string }; acti
     <Link
       ref={ref}
       href={item.href}
-      className="relative text-[12px] uppercase tracking-[0.1em] hover:text-[#eeece6] transition-colors"
-      style={{ fontFamily: "Futura, 'Trebuchet MS', sans-serif", fontWeight: 300, color: "#FFFFDC", textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}
+      // One treatment at every breakpoint — IBM Plex Mono, 18px, 0.02em —
+      // matching the contact details block.
+      className="relative uppercase transition-colors hover:text-[#eeece6] font-mono font-normal text-[18px] tracking-[0.02em]"
+      style={{ color: "#FFFFDC", textShadow: "0 2px 4px rgba(0,0,0,0.4)" }}
     >
       <span className="relative z-10">{item.label}</span>
       {size.w > 0 && <SketchCircle w={size.w} h={size.h} seed={item.label} active={active} />}
